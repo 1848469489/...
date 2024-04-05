@@ -7,23 +7,15 @@ import 'package:flutter_animate/flutter_animate.dart';
 
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 
-import 'package:quiver/strings.dart';
+
 import '../widget/MyTextField.dart';
 import '../widget/LoginButton.dart';
-import 'HomeRoute.dart';
+
 import 'package:el_tooltip/el_tooltip.dart';
 
-final _formValidateKey = GlobalKey<FormState>(); // Form key
-final _studentIDFieldValidateKey = GlobalKey<FormFieldState>();
-final _nameFieldValidateKey = GlobalKey<FormFieldState>();
-final _passwordFieldValidateKey = GlobalKey<FormFieldState>();
-final _studentIDFieldKey = GlobalKey<MyTextFieldState>();
-final _nameFieldKey = GlobalKey<MyTextFieldState>();
-final _passwordFieldKey = GlobalKey<MyTextFieldState>();
 int _currentIndex = 0;
 List _backgroundImages = [
-  'assets/images/20240326230337.jpg',
-
+  
   'assets/images/miku02.jpg',
   'assets/images/miku03.jpg',
   'assets/images/miku04.jpg',
@@ -32,25 +24,37 @@ List _backgroundImages = [
   'assets/images/miku07.jpg',
   'assets/images/miku08.jpg',
   'assets/images/20240326230235.jpg',
+  'assets/images/20240326230337.jpg',
 ];
-late MyTextField _studentIDFormField;
-late MyTextField _nameFormField;
-late MyTextField _passwordFormField;
-late LoginButton _loginButton;
 
-late List<GlobalKey<FormFieldState>> formFieldValidateKeys = [];
-late List<MyTextField> formFields = [];
-
-TextEditingController _studentIdController = TextEditingController();
-TextEditingController _nameController = TextEditingController();
-TextEditingController _passwordController = TextEditingController();
-
-late AnimationController _animationController;
-late Animation<Offset> _nameOffset;
-late Animation<Offset> _studentIdOffset;
-late Animation<Offset> _passwordOffset;
 
 class LoginScreen extends StatefulWidget {
+  // GlobalKey<_LoginScreenState> key;
+  // LoginScreen({
+  //   required this.key,
+  // });
+  final _formValidateKey = GlobalKey<FormState>(); // Form key
+  final _studentIDFieldValidateKey = GlobalKey<FormFieldState>();
+  final _nameFieldValidateKey = GlobalKey<FormFieldState>();
+  final _passwordFieldValidateKey = GlobalKey<FormFieldState>();
+  final _studentIDFieldKey = GlobalKey<MyTextFieldState>();
+  final _nameFieldKey = GlobalKey<MyTextFieldState>();
+  final _passwordFieldKey = GlobalKey<MyTextFieldState>();
+
+  late MyTextField _studentIDFormField;
+  late MyTextField _nameFormField;
+  late MyTextField _passwordFormField;
+  late LoginButton _loginButton;
+  late List<GlobalKey<FormFieldState>> formFieldValidateKeys = [];
+  late List<MyTextField> formFields = [];
+
+
+
+  late AnimationController _animationController;
+  late Animation<Offset> _nameOffset;
+  late Animation<Offset> _studentIdOffset;
+  late Animation<Offset> _passwordOffset;
+
   static const routeName = '/login';
   @override
   _LoginScreenState createState() => _LoginScreenState();
@@ -58,19 +62,22 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen>
     with TickerProviderStateMixin {
+  TextEditingController _studentIdController = TextEditingController();
+  TextEditingController _nameController = TextEditingController();
+  TextEditingController _passwordController = TextEditingController();
   bool _showWhiteBackground = false;
   // late AnimationController _pageAnimationController;
   // late Animation<Color?> _pageAnimation;
   @override
   void initState() {
     super.initState();
-    _loginButton = LoginButton(
+    widget._loginButton = LoginButton(
       height: 50,
       // width: 180,
       roundLoadingShape: true,
       onTap: (startLoading, stopLoading, btnState) {
         FocusScope.of(context).unfocus();
-        if (_formValidateKey.currentState!.validate()) {
+        if (widget._formValidateKey.currentState!.validate()) {
           if (btnState == ButtonState.Idle) {
             startLoading();
 
@@ -87,25 +94,24 @@ class _LoginScreenState extends State<LoginScreen>
                     ), // 设置为floating以从顶部出现
                   );
                 } else {
-                  
-                    Navigator.of(context).pushReplacement(
-                      PageRouteBuilder(
-                        transitionDuration: Duration(seconds: 3), // 动画持续时间
-                        pageBuilder: (context, animation, secondaryAnimation) {
-                          return AllWhiteScreen(); // 替换成你要跳转的页面
-                        },
-                        transitionsBuilder:
-                            (context, animation, secondaryAnimation, child) {
-                          return FadeTransition(
-                            // 使用 FadeTransition 进行淡入淡出动画
-                            opacity: animation,
-                            child: child,
-                          );
-                        },
-                      ),
-                    );
-                  
-                  _animationController.reverse();
+                  Navigator.of(context).pushReplacement(
+                    PageRouteBuilder(
+                      transitionDuration: Duration(seconds: 3), // 动画持续时间
+                      pageBuilder: (context, animation, secondaryAnimation) {
+                        return AllWhiteScreen(); // 替换成你要跳转的页面
+                      },
+                      transitionsBuilder:
+                          (context, animation, secondaryAnimation, child) {
+                        return FadeTransition(
+                          // 使用 FadeTransition 进行淡入淡出动画
+                          opacity: animation,
+                          child: child,
+                        );
+                      },
+                    ),
+                  );
+
+                  widget._animationController.reverse();
                 }
                 // _checkmarkAnimationController.forward;
                 print("hello");
@@ -130,10 +136,10 @@ class _LoginScreenState extends State<LoginScreen>
           style:
               TextStyle(color: Color.fromARGB(255, 7, 250, 238), fontSize: 20)),
     );
-    _studentIDFormField = MyTextField(
+    widget._studentIDFormField = MyTextField(
       keyBoardType: TextInputType.number,
-      validateKey: _studentIDFieldValidateKey,
-      key: _studentIDFieldKey,
+      validateKey: widget._studentIDFieldValidateKey,
+      key: widget._studentIDFieldKey,
       labelText: 'Student ID',
       hintText: 'e.g. 212511061XX',
       regExp: RegExp(r'^\d+$'),
@@ -143,19 +149,19 @@ class _LoginScreenState extends State<LoginScreen>
       controller: _studentIdController,
     );
 
-    _nameFormField = MyTextField(
+    widget._nameFormField = MyTextField(
       keyBoardType: TextInputType.multiline,
-      validateKey: _nameFieldValidateKey,
-      key: _nameFieldKey,
+      validateKey: widget._nameFieldValidateKey,
+      key: widget._nameFieldKey,
       labelText: 'Name',
       prefixIcon: Icons.account_circle,
       controller: _nameController,
     );
 
-    _passwordFormField = MyTextField(
+    widget._passwordFormField = MyTextField(
       keyBoardType: TextInputType.visiblePassword,
-      validateKey: _passwordFieldValidateKey,
-      key: _passwordFieldKey,
+      validateKey: widget._passwordFieldValidateKey,
+      key: widget._passwordFieldKey,
       labelText: 'Password',
       prefixIcon: Icons.lock,
       isPassword: true,
@@ -164,46 +170,46 @@ class _LoginScreenState extends State<LoginScreen>
       controller: _passwordController,
     );
 
-    formFields.add(_studentIDFormField);
-    formFields.add(_nameFormField);
-    formFields.add(_passwordFormField);
+    widget.formFields.add(widget._studentIDFormField);
+    widget.formFields.add(widget._nameFormField);
+    widget.formFields.add(widget._passwordFormField);
 
-    formFieldValidateKeys.add(_studentIDFieldValidateKey);
-    formFieldValidateKeys.add(_nameFieldValidateKey);
-    formFieldValidateKeys.add(_passwordFieldValidateKey);
+    widget.formFieldValidateKeys.add(widget._studentIDFieldValidateKey);
+    widget.formFieldValidateKeys.add(widget._nameFieldValidateKey);
+    widget.formFieldValidateKeys.add(widget._passwordFieldValidateKey);
     _startBackgroundImageAnimation();
 
-    _animationController = AnimationController(
+    widget._animationController = AnimationController(
       vsync: this,
       duration: Duration(milliseconds: 2000),
     );
-    _studentIdOffset = Tween<Offset>(
+    widget._studentIdOffset = Tween<Offset>(
       begin: Offset(0.0, 1.0),
       end: Offset.zero,
     ).animate(CurvedAnimation(
-      parent: _animationController,
+      parent: widget._animationController,
       curve: Interval(0.2, 1.0, curve: Curves.linear),
     ));
-    _nameOffset = Tween<Offset>(
+    widget._nameOffset = Tween<Offset>(
       begin: Offset(0.0, 1.0),
       end: Offset.zero,
     ).animate(CurvedAnimation(
-      parent: _animationController,
+      parent: widget._animationController,
       curve: Interval(0.0, 1.0, curve: Curves.elasticInOut),
     ));
 
-    _passwordOffset = Tween<Offset>(
+    widget._passwordOffset = Tween<Offset>(
       begin: Offset(0.0, 1.0),
       end: Offset.zero,
     ).animate(CurvedAnimation(
-      parent: _animationController,
+      parent: widget._animationController,
       curve: Interval(0.4, 1.0, curve: Curves.linear),
     ));
-    _animationController.addListener(() {
+    widget._animationController.addListener(() {
       setState(() {}); // 通知Flutter重建UI
     });
 
-    _animationController.forward();
+    widget._animationController.forward();
   }
 
   @override
@@ -212,7 +218,7 @@ class _LoginScreenState extends State<LoginScreen>
     _nameController.dispose();
     _passwordController.dispose();
 
-    _animationController.dispose();
+    widget._animationController.dispose();
     super.dispose();
   }
 
@@ -259,12 +265,11 @@ class _LoginScreenState extends State<LoginScreen>
               child: SizedBox(
                 width: double.infinity, // 让文字动画撑满屏幕宽度
                 child: DefaultTextStyle(
-                  
                   textAlign: TextAlign.center, // 让文字居中显示
                   style: const TextStyle(
                       fontSize: 28,
                       fontWeight: FontWeight.bold,
-                      color: Color.fromARGB(255, 64, 255, 242)),
+                      color: Color.fromARGB(255, 10, 0, 10)),
                   child: AnimatedTextKit(
                     isRepeatingAnimation: false,
                     animatedTexts: [
@@ -278,14 +283,14 @@ class _LoginScreenState extends State<LoginScreen>
             ),
           ),
           SlideTransition(
-            position: _nameOffset,
+            position: widget._nameOffset,
             child: SingleChildScrollView(
               padding: EdgeInsets.only(
                 bottom: MediaQuery.of(context).viewInsets.bottom,
               ),
               child: Container(
                 child: Form(
-                  key: _formValidateKey,
+                  key: widget._formValidateKey,
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -300,18 +305,17 @@ class _LoginScreenState extends State<LoginScreen>
                           SaturateEffect(delay: 1500.ms)
                         ],
                         children: [
-                          _studentIDFormField,
+                          widget._studentIDFormField,
                           SizedBox(
                             height: 5,
                           ),
-                          _nameFormField,
+                          widget._nameFormField,
                           SizedBox(
                             height: 5,
                           ),
-                          _passwordFormField,
+                          widget._passwordFormField,
                         ],
                       )),
-                      
                       SizedBox(height: 10.0),
                       Row(
                         children: [
@@ -320,7 +324,7 @@ class _LoginScreenState extends State<LoginScreen>
                           ),
                           Container(
                             width: MediaQuery.of(context).size.width / 3,
-                            child: Center(child: _loginButton),
+                            child: Center(child: widget._loginButton),
                           ),
                           const ElTooltip(
                             position: ElTooltipPosition.leftEnd,
@@ -346,7 +350,7 @@ class _LoginScreenState extends State<LoginScreen>
 
   void _animateInvalidInputFields() {
     // 检查每个表单项的验证结果，如果未通过，则执行动画
-    for (var formField in formFields) {
+    for (var formField in widget.formFields) {
       if (!formField.validateKey!.currentState!.isValid) {
         formField.key!.currentState!.isAnimating = true;
         formField.key!.currentState!.rebuild();
@@ -354,7 +358,7 @@ class _LoginScreenState extends State<LoginScreen>
     }
     //在动画结束后重置 _isAnimating 为 false
     Future.delayed(Duration(milliseconds: 5000), () {
-      for (var formField in formFields) {
+      for (var formField in widget.formFields) {
         formField.key!.currentState!.isAnimating = false;
         formField.key!.currentState!.rebuild();
       }

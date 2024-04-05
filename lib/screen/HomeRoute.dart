@@ -2,39 +2,49 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:animated_notch_bottom_bar/animated_notch_bottom_bar/animated_notch_bottom_bar.dart';
+import 'package:ultimatedemo/screen/LoginScreen.dart';
 
 class HomeRoute extends StatefulWidget {
-  static const  String routeName = '/home';
-  const HomeRoute({Key? key}) : super(key: key);
+  static const String routeName = '/home';
+  HomeRoute({super.key});
 
+  double? maxIndex = 4.0;
+  LoginScreen loginScreen = LoginScreen();
   @override
   State<HomeRoute> createState() => _HomeRouteState();
-
 }
 
-class _HomeRouteState extends State<HomeRoute> {
+class _HomeRouteState extends State<HomeRoute>  with AutomaticKeepAliveClientMixin {
   /// Controller to handle PageView and also handles initial page
   final _pageController = PageController(initialPage: 0);
+  bool isAuth = false;
+  double? _currentIndex = 0.0;
 
   /// Controller to handle bottom nav bar and also handles initial page
   final _controller = NotchBottomBarController(index: 0);
-
-  int maxCount = 5;
-
-  @override
-  void dispose() {
-    _pageController.dispose();
-    super.dispose();
-  }
 
   /// widget list
   final List<Widget> bottomBarPages = [
     const Page1(),
     const Page2(),
     const Page3(),
-    const Page4(),
-    const Page5(),
+    const Page4(
+      title: '',
+    ),
   ];
+
+  @override
+  void initState() {
+    super.initState();
+
+    bottomBarPages.add(widget.loginScreen);
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -46,7 +56,7 @@ class _HomeRouteState extends State<HomeRoute> {
             bottomBarPages.length, (index) => bottomBarPages[index]),
       ),
       extendBody: true,
-      bottomNavigationBar: (bottomBarPages.length <= maxCount)
+      bottomNavigationBar: (_currentIndex != widget.maxIndex && isAuth == false)
           ? AnimatedNotchBottomBar(
               /// Provide NotchBottomBarController
               notchBottomBarController: _controller,
@@ -57,7 +67,10 @@ class _HomeRouteState extends State<HomeRoute> {
               notchShader: const SweepGradient(
                 startAngle: 0,
                 endAngle: 3 / 2,
-                colors: [Colors.white, Colors.black, ],
+                colors: [
+                  Colors.white,
+                  Colors.black,
+                ],
                 tileMode: TileMode.mirror,
               ).createShader(Rect.fromCircle(center: Offset.zero, radius: 8.0)),
               notchColor: Colors.black87,
@@ -122,19 +135,29 @@ class _HomeRouteState extends State<HomeRoute> {
                     Icons.person,
                     color: Colors.yellow,
                   ),
-                  itemLabel: 'Page 5',
+                  itemLabel: 'LoginScreen',
                 ),
               ],
               onTap: (index) {
                 /// perform action on tab change and to update pages you can update pages without pages
                 log('current selected index $index');
                 _pageController.jumpToPage(index);
+                setState(() {
+                  _currentIndex = _pageController.page;
+                });
+
+                log('current selected index ${_currentIndex}');
+                print(_currentIndex == widget.maxIndex);
               },
               kIconSize: 24.0,
             )
           : null,
     );
   }
+  
+  @override
+  // TODO: implement wantKeepAlive
+  bool get wantKeepAlive => true;
 }
 
 class Page1 extends StatelessWidget {
@@ -167,23 +190,45 @@ class Page3 extends StatelessWidget {
   }
 }
 
-class Page4 extends StatelessWidget {
-  const Page4({Key? key}) : super(key: key);
+class Page4 extends StatefulWidget {
+  const Page4({super.key, required this.title});
+
+  final String title;
 
   @override
-  Widget build(BuildContext context) {
-    return Container(
-        color: Colors.blue, child: const Center(child: Text('Page 4')));
-  }
+  State<Page4> createState() => _PageState();
 }
 
-class Page5 extends StatelessWidget {
-  const Page5({Key? key}) : super(key: key);
+class _PageState extends State<Page4>  with AutomaticKeepAliveClientMixin{
+  int _counter = 0;
+
+  void _incrementCounter() {
+    setState(() {
+      _counter++;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-        color: Colors.lightGreenAccent,
-        child: const Center(child: Text('Page 5')));
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          const Text(
+            'You have pushed the button this many times:',
+          ),
+          Text(
+            '$_counter',
+            style: Theme.of(context).textTheme.headlineMedium,
+          ),
+          ElevatedButton(onPressed: _incrementCounter, child: null, )
+        ],
+      ),
+    );
+    // This trailing comma makes auto-formatting nicer for build methods.
   }
+  
+  @override
+  // TODO: implement wantKeepAlive
+  bool get wantKeepAlive => true;
 }
