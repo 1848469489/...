@@ -209,7 +209,12 @@ class _LoginButtonState extends State<LoginButton>
         child: ElevatedButton(
           key: _buttonKey,
           style: ButtonStyle(
-            backgroundColor: MaterialStateProperty.all(widget.color),
+            backgroundColor: MaterialStateProperty.resolveWith((states) {
+              if (states.contains(MaterialState.pressed)) {
+                return Colors.blueAccent;
+              }
+              return Colors.black;
+            }),
             overlayColor: MaterialStateProperty.all(widget.focusColor),
             elevation: MaterialStateProperty.all(widget.elevation),
             padding: MaterialStateProperty.all(widget.padding),

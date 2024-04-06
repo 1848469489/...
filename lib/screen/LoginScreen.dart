@@ -1,3 +1,5 @@
+import 'package:provider/provider.dart';
+import 'package:ultimatedemo/main.dart';
 import 'package:ultimatedemo/screen/HomeRoute.dart';
 
 import 'BlankScreen.dart';
@@ -108,11 +110,9 @@ class _LoginScreenState extends State<LoginScreen>
                       },
                     ),
                   );
-
                   widget._animationController.reverse();
+                  
                 }
-                // _checkmarkAnimationController.forward;
-                print("hello");
               });
             });
           } else {}

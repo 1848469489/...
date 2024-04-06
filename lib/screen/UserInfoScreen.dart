@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:provider/provider.dart';
+
 import 'package:ultimatedemo/screen/LoginScreen.dart';
 
+import '../main.dart';
+
 class UserInfoScreen extends StatefulWidget {
-  bool? isAuth = false;
-  UserInfoScreen({
-    this.isAuth,
-  });
+
   @override
   _UserInfoScreenState createState() => _UserInfoScreenState();
 }
@@ -19,7 +19,7 @@ class _UserInfoScreenState extends State<UserInfoScreen>
 
   @override
   Widget build(BuildContext context) {
-    return widget.isAuth == true
+    return Provider.of<MyAppState>(context).isAuth == true
         ? Scaffold(
             appBar: AppBar(
               title: Text('User Profile'),

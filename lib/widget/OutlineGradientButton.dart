@@ -14,7 +14,7 @@ class OutlineGradientButton extends StatefulWidget {
   final Color backgroundColor;
   final double elevation;
   final bool inkWell;
-  final VoidCallback? onTap;
+  final GestureTapCallback? onTap;
   final GestureTapCallback? onDoubleTap;
   final GestureLongPressCallback? onLongPress;
   final GestureTapDownCallback? onTapDown;

@@ -1,3 +1,6 @@
+import 'package:provider/provider.dart';
+
+import '../main.dart';
 import 'HomeRoute.dart';
 import 'package:flutter/material.dart';
 
@@ -9,6 +12,7 @@ class AllWhiteScreen extends StatefulWidget {
 class _AllWhiteScreenState extends State<AllWhiteScreen> {
   @override
   Widget build(BuildContext context) {
+    Provider.of<MyAppState>(context).updateAuthStatus(true);
 // 在构建完成后立即跳转到另一个页面
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // 使用 Navigator 进行页面跳转
@@ -17,7 +21,7 @@ class _AllWhiteScreenState extends State<AllWhiteScreen> {
           PageRouteBuilder(
             transitionDuration: Duration(seconds: 3), // 动画持续时间
             pageBuilder: (context, animation, secondaryAnimation) {
-              return HomeRoute(isAuth: true,); // 替换成你要跳转的页面
+              return HomeRoute(); // 替换成你要跳转的页面
             },
             transitionsBuilder:
                 (context, animation, secondaryAnimation, child) {
