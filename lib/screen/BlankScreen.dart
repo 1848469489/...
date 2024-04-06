@@ -17,7 +17,7 @@ class _AllWhiteScreenState extends State<AllWhiteScreen> {
           PageRouteBuilder(
             transitionDuration: Duration(seconds: 3), // 动画持续时间
             pageBuilder: (context, animation, secondaryAnimation) {
-              return HomeRoute(); // 替换成你要跳转的页面
+              return HomeRoute(isAuth: true,); // 替换成你要跳转的页面
             },
             transitionsBuilder:
                 (context, animation, secondaryAnimation, child) {

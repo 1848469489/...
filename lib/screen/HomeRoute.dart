@@ -2,42 +2,51 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:animated_notch_bottom_bar/animated_notch_bottom_bar/animated_notch_bottom_bar.dart';
+import 'package:get/get.dart';
 import 'package:ultimatedemo/screen/LoginScreen.dart';
+import 'package:ultimatedemo/screen/UserInfoScreen.dart';
 
 class HomeRoute extends StatefulWidget {
   static const String routeName = '/home';
-  HomeRoute({super.key});
+  bool? isAuth = false;
+  HomeRoute({super.key, this.isAuth});
 
   double? maxIndex = 4.0;
-  LoginScreen loginScreen = LoginScreen();
+  //LoginScreen loginScreen = LoginScreen();
   @override
   State<HomeRoute> createState() => _HomeRouteState();
 }
 
-class _HomeRouteState extends State<HomeRoute>  with AutomaticKeepAliveClientMixin {
+class _HomeRouteState extends State<HomeRoute>
+    with AutomaticKeepAliveClientMixin {
   /// Controller to handle PageView and also handles initial page
   final _pageController = PageController(initialPage: 0);
-  bool isAuth = false;
+
   double? _currentIndex = 0.0;
 
   /// Controller to handle bottom nav bar and also handles initial page
   final _controller = NotchBottomBarController(index: 0);
-
+  late List<Widget> bottomBarPages=[];
   /// widget list
-  final List<Widget> bottomBarPages = [
-    const Page1(),
-    const Page2(),
-    const Page3(),
-    const Page4(
-      title: '',
-    ),
-  ];
+
 
   @override
   void initState() {
     super.initState();
+    bottomBarPages.add(const Page1(
+      title: '',
+    ),);
+    bottomBarPages.add(const Page2(
+      title: '',
+    ),);
+    bottomBarPages.add(const Page3(
+      title: '',
+    ),);
+    bottomBarPages.add(const Page4(
+      title: '',
+    ),);
+    bottomBarPages.add(UserInfoScreen(isAuth: widget.isAuth,),);
 
-    bottomBarPages.add(widget.loginScreen);
   }
 
   @override
@@ -51,12 +60,13 @@ class _HomeRouteState extends State<HomeRoute>  with AutomaticKeepAliveClientMix
     return Scaffold(
       body: PageView(
         controller: _pageController,
-        physics: const NeverScrollableScrollPhysics(),
+        physics: NeverScrollableScrollPhysics(),
         children: List.generate(
             bottomBarPages.length, (index) => bottomBarPages[index]),
       ),
       extendBody: true,
-      bottomNavigationBar: (_currentIndex != widget.maxIndex && isAuth == false)
+      bottomNavigationBar: (_currentIndex != widget.maxIndex ||
+              widget.isAuth == true)
           ? AnimatedNotchBottomBar(
               /// Provide NotchBottomBarController
               notchBottomBarController: _controller,
@@ -145,61 +155,29 @@ class _HomeRouteState extends State<HomeRoute>  with AutomaticKeepAliveClientMix
                 setState(() {
                   _currentIndex = _pageController.page;
                 });
-
                 log('current selected index ${_currentIndex}');
-                print(_currentIndex == widget.maxIndex);
               },
               kIconSize: 24.0,
             )
           : null,
     );
   }
-  
+
   @override
   // TODO: implement wantKeepAlive
   bool get wantKeepAlive => true;
 }
 
-class Page1 extends StatelessWidget {
-  const Page1({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-        color: Colors.yellow, child: const Center(child: Text('Page 1')));
-  }
-}
-
-class Page2 extends StatelessWidget {
-  const Page2({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-        color: Colors.green, child: const Center(child: Text('Page 2')));
-  }
-}
-
-class Page3 extends StatelessWidget {
-  const Page3({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-        color: Colors.red, child: const Center(child: Text('Page 3')));
-  }
-}
-
-class Page4 extends StatefulWidget {
-  const Page4({super.key, required this.title});
+class Page1 extends StatefulWidget {
+  const Page1({super.key, required this.title});
 
   final String title;
 
   @override
-  State<Page4> createState() => _PageState();
+  State<Page1> createState() => _Page1State();
 }
 
-class _PageState extends State<Page4>  with AutomaticKeepAliveClientMixin{
+class _Page1State extends State<Page1> with AutomaticKeepAliveClientMixin {
   int _counter = 0;
 
   void _incrementCounter() {
@@ -221,13 +199,154 @@ class _PageState extends State<Page4>  with AutomaticKeepAliveClientMixin{
             '$_counter',
             style: Theme.of(context).textTheme.headlineMedium,
           ),
-          ElevatedButton(onPressed: _incrementCounter, child: null, )
+          ElevatedButton(
+            onPressed: _incrementCounter,
+            child: null,
+          )
         ],
       ),
     );
     // This trailing comma makes auto-formatting nicer for build methods.
   }
-  
+
+  @override
+  // TODO: implement wantKeepAlive
+  bool get wantKeepAlive => true;
+}
+
+class Page2 extends StatefulWidget {
+  const Page2({super.key, required this.title});
+
+  final String title;
+
+  @override
+  State<Page2> createState() => _Page2State();
+}
+
+class _Page2State extends State<Page2> with AutomaticKeepAliveClientMixin {
+  int _counter = 0;
+
+  void _incrementCounter() {
+    setState(() {
+      _counter++;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          const Text(
+            'You have pushed the button this many times:',
+          ),
+          Text(
+            '$_counter',
+            style: Theme.of(context).textTheme.headlineMedium,
+          ),
+          ElevatedButton(
+            onPressed: _incrementCounter,
+            child: null,
+          )
+        ],
+      ),
+    );
+    // This trailing comma makes auto-formatting nicer for build methods.
+  }
+
+  @override
+  // TODO: implement wantKeepAlive
+  bool get wantKeepAlive => true;
+}
+
+class Page3 extends StatefulWidget {
+  const Page3({super.key, required this.title});
+
+  final String title;
+
+  @override
+  State<Page3> createState() => _Page3State();
+}
+
+class _Page3State extends State<Page3> with AutomaticKeepAliveClientMixin {
+  int _counter = 0;
+
+  void _incrementCounter() {
+    setState(() {
+      _counter++;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          const Text(
+            'You have pushed the button this many times:',
+          ),
+          Text(
+            '$_counter',
+            style: Theme.of(context).textTheme.headlineMedium,
+          ),
+          ElevatedButton(
+            onPressed: _incrementCounter,
+            child: null,
+          )
+        ],
+      ),
+    );
+    // This trailing comma makes auto-formatting nicer for build methods.
+  }
+
+  @override
+  // TODO: implement wantKeepAlive
+  bool get wantKeepAlive => true;
+}
+
+class Page4 extends StatefulWidget {
+  const Page4({super.key, required this.title});
+
+  final String title;
+
+  @override
+  State<Page4> createState() => _Page4State();
+}
+
+class _Page4State extends State<Page4> with AutomaticKeepAliveClientMixin {
+  int _counter = 0;
+
+  void _incrementCounter() {
+    setState(() {
+      _counter++;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          const Text(
+            'You have pushed the button this many times:',
+          ),
+          Text(
+            '$_counter',
+            style: Theme.of(context).textTheme.headlineMedium,
+          ),
+          ElevatedButton(
+            onPressed: _incrementCounter,
+            child: null,
+          )
+        ],
+      ),
+    );
+    // This trailing comma makes auto-formatting nicer for build methods.
+  }
+
   @override
   // TODO: implement wantKeepAlive
   bool get wantKeepAlive => true;

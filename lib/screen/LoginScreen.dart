@@ -1,4 +1,7 @@
+import 'package:ultimatedemo/screen/HomeRoute.dart';
+
 import 'BlankScreen.dart';
+import '../widget/OutlineGradientButton.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:animated_text_kit/animated_text_kit.dart';
@@ -7,15 +10,13 @@ import 'package:flutter_animate/flutter_animate.dart';
 
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 
-
 import '../widget/MyTextField.dart';
 import '../widget/LoginButton.dart';
-
+import 'package:google_fonts/google_fonts.dart';
 import 'package:el_tooltip/el_tooltip.dart';
 
 int _currentIndex = 0;
 List _backgroundImages = [
-  
   'assets/images/miku02.jpg',
   'assets/images/miku03.jpg',
   'assets/images/miku04.jpg',
@@ -26,7 +27,6 @@ List _backgroundImages = [
   'assets/images/20240326230235.jpg',
   'assets/images/20240326230337.jpg',
 ];
-
 
 class LoginScreen extends StatefulWidget {
   // GlobalKey<_LoginScreenState> key;
@@ -47,8 +47,6 @@ class LoginScreen extends StatefulWidget {
   late LoginButton _loginButton;
   late List<GlobalKey<FormFieldState>> formFieldValidateKeys = [];
   late List<MyTextField> formFields = [];
-
-
 
   late AnimationController _animationController;
   late Animation<Offset> _nameOffset;
@@ -237,26 +235,6 @@ class _LoginScreenState extends State<LoginScreen>
               width: double.infinity,
               height: double.infinity,
             ),
-            transitionBuilder: (child, animation) {
-              return Stack(
-                children: [
-                  FadeTransition(
-                    opacity: animation,
-                    child: child,
-                  ),
-                  if (_showWhiteBackground)
-                    AnimatedOpacity(
-                      opacity: _showWhiteBackground ? 1.0 : 0.0,
-                      duration: Duration(seconds: 1),
-                      child: Container(
-                        color: Colors.white,
-                        width: double.infinity,
-                        height: double.infinity,
-                      ),
-                    ),
-                ],
-              );
-            },
           ),
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 20.0), // 设置左右间距
@@ -266,10 +244,21 @@ class _LoginScreenState extends State<LoginScreen>
                 width: double.infinity, // 让文字动画撑满屏幕宽度
                 child: DefaultTextStyle(
                   textAlign: TextAlign.center, // 让文字居中显示
-                  style: const TextStyle(
-                      fontSize: 28,
+                  style: GoogleFonts.aboreto(
+                    textStyle: const TextStyle(
                       fontWeight: FontWeight.bold,
-                      color: Color.fromARGB(255, 10, 0, 10)),
+                      fontSize: 28,
+                      color: Colors.black,
+                      shadows: [
+                        Shadow(
+                          color: Color.fromARGB(255, 10, 202, 212),
+                          offset: Offset(2, 2),
+                          blurRadius: 3,
+                        ),
+                      ],
+                    ),
+                  ),
+
                   child: AnimatedTextKit(
                     isRepeatingAnimation: false,
                     animatedTexts: [
@@ -342,6 +331,35 @@ class _LoginScreenState extends State<LoginScreen>
                 ),
               ),
             ),
+          ),
+          Positioned(
+            top: 50,
+            left: 0,
+            child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 10.0),
+                child: Container(
+                  width: 50,
+                  child: OutlineGradientButton(
+                    inkWell: true,
+                    onTap: () => Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (context) => HomeRoute()),
+                    ),
+                    gradient: LinearGradient(
+                      colors: List.generate(
+                          360,
+                          (h) => HSLColor.fromAHSL(1, h.toDouble(), 1, 0.5)
+                              .toColor()),
+                    ),
+                    strokeWidth: 2,
+                    radius: Radius.circular(40),
+                    child: const Center(
+                        child: Icon(
+                      Icons.arrow_back_ios_new_sharp,
+                      color: Color.fromARGB(255, 4, 231, 197),
+                    )),
+                  ),
+                )),
           ),
         ],
       ),
