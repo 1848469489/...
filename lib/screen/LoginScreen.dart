@@ -294,7 +294,6 @@ class _LoginScreenState extends State<LoginScreen>
                                     .scale()
                                     .fadeIn(),
                           )
-                          //widget._confirmPasswordFormField,
                         ],
                       )),
                       SizedBox(height: 10.0),
@@ -310,61 +309,70 @@ class _LoginScreenState extends State<LoginScreen>
                               height: 40,
                               // width: 180,
                               roundLoadingShape: true,
-                              onTap: (startLoading, stopLoading, btnState) {
+                              onTap: (startLoading, success, fail, btnState) {
                                 FocusScope.of(context).unfocus();
                                 if (widget._formValidateKey.currentState!
                                     .validate()) {
                                   if (btnState == ButtonState.Idle) {
                                     startLoading();
-
                                     Future.delayed(Duration(seconds: 1), () {
-                                      if (isLogin) {
-                                        bool isAuth = stopLoading(
-                                            _studentIdController.text,
-                                            _nameController.text,
-                                            _passwordController.text);
+                                      //之后通过Future<User>接收根据用户名查询的用户，现假定已查到
+                                      bool user =
+                                          _studentIdController.text == '1' &&
+                                              _nameController.text == 'a1' &&
+                                              _passwordController.text == 'a1';
+                                      //是否为登录状态且用户存在
+                                      if (!(isLogin ^ user)) {
+                                        if (isLogin == false) {
+                                          //之后将用户信息存入数据库
+                                        }
+
+                                        success();
                                         Future.delayed(
                                             Duration(milliseconds: 500), () {
-                                          if (!isAuth) {
-                                            ScaffoldMessenger.of(context)
-                                                .showSnackBar(
-                                              const SnackBar(
-                                                content:
-                                                    Text('user not exist!!!'),
-                                                backgroundColor: Colors.red,
-                                                behavior:
-                                                    SnackBarBehavior.floating,
-                                              ), // 设置为floating以从顶部出现
-                                            );
-                                          } else {
-                                            Navigator.of(context)
-                                                .pushReplacement(
-                                              PageRouteBuilder(
-                                                transitionDuration: Duration(
-                                                    seconds: 3), // 动画持续时间
-                                                pageBuilder: (context,
-                                                    animation,
-                                                    secondaryAnimation) {
-                                                  return AllWhiteScreen(); // 替换成你要跳转的页面
-                                                },
-                                                transitionsBuilder: (context,
-                                                    animation,
-                                                    secondaryAnimation,
-                                                    child) {
-                                                  return FadeTransition(
-                                                    // 使用 FadeTransition 进行淡入淡出动画
-                                                    opacity: animation,
-                                                    child: child,
-                                                  );
-                                                },
-                                              ),
-                                            );
-                                            _animationController.reverse();
-                                          }
+                                          Navigator.of(context).pushReplacement(
+                                            PageRouteBuilder(
+                                              transitionDuration: Duration(
+                                                  seconds: 3), // 动画持续时间
+                                              pageBuilder: (context, animation,
+                                                  secondaryAnimation) {
+                                                return AllWhiteScreen(); // 替换成你要跳转的页面
+                                              },
+                                              transitionsBuilder: (context,
+                                                  animation,
+                                                  secondaryAnimation,
+                                                  child) {
+                                                return FadeTransition(
+                                                  // 使用 FadeTransition 进行淡入淡出动画
+                                                  opacity: animation,
+                                                  child: child,
+                                                );
+                                              },
+                                            ),
+                                          );
+                                          _animationController.reverse();
                                         });
-                                      } else {}
+                                      } else {
+                                        fail();
+                                        Future.delayed(
+                                            Duration(milliseconds: 500), () {
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(
+                                            SnackBar(
+                                              content: isLogin
+                                                  ? Text(
+                                                      'login fail ! Invalid username or password !!!')
+                                                  : Text(
+                                                      'register fail !user exist!!!'),
+                                              backgroundColor: Colors.red,
+                                              behavior:
+                                                  SnackBarBehavior.floating,
+                                            ), // 设置为floating以从顶部出现
+                                          );
+                                        });
+                                      }
                                     });
-                                  } else {}
+                                  } else {} //按钮繁忙时按按钮什么也不做，
                                 } else {
                                   // 表单校验未通过，执行动画突出显示未通过校验的输入框
                                   _animateInvalidInputFields();
@@ -448,7 +456,7 @@ class _LoginScreenState extends State<LoginScreen>
       }
     }
     //在动画结束后重置 _isAnimating 为 false
-    Future.delayed(Duration(milliseconds: 5000), () {
+    Future.delayed(Duration(milliseconds: 4000), () {
       for (var formField in widget.formFields) {
         formField.key!.currentState!.isAnimating = false;
         formField.key!.currentState!.rebuild();

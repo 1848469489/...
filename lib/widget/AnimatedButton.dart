@@ -18,10 +18,8 @@ class MyButton extends StatefulWidget {
   final Curve curve;
   final Curve reverseCurve;
   final Widget child;
-  final Function(
-      Function startLoading,
-      bool Function(String studentID, String name, String password) stopLoading,
-      ButtonState btnState)? onTap;
+  final Function(Function startLoading, Function succerrAndStop,
+      Function failAndStop, ButtonState btnState)? onTap;
   final Color? color;
   final Color? focusColor;
   final Color? hoverColor;
@@ -140,16 +138,7 @@ class _MyButtonState extends State<MyButton> with TickerProviderStateMixin {
     _controller.forward();
   }
 
-  bool animateReverse(String studentID, String name, String password) {
-    //认证
-
-    //如果失败
-    if (!(studentID == '1' && name == 'a1' && password == 'a1')) {
-      _controller.reverse();
-      return false;
-    }
-
-    //如果成功
+  void success() {
     setState(() {
       isSucceed = true;
       btn = ButtonState.Idle;
@@ -160,8 +149,14 @@ class _MyButtonState extends State<MyButton> with TickerProviderStateMixin {
       setState(() {});
     });
     _checkmarkAnimationController.forward();
+  }
 
-    return true;
+  void fail() {
+    setState(() {
+      isSucceed = false;
+      btn = ButtonState.Idle;
+    });
+    _controller.reverse();
   }
 
   lerpWidth(a, b, t) {
@@ -220,7 +215,7 @@ class _MyButtonState extends State<MyButton> with TickerProviderStateMixin {
           ),
           focusNode: widget.focusNode,
           onPressed: () {
-            widget.onTap!(animateForward, animateReverse, btn);
+            widget.onTap!(animateForward, success, fail, btn);
           },
           child: isSucceed == false
               ? (btn == ButtonState.Idle ? widget.child : widget.loader)
