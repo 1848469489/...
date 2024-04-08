@@ -1,19 +1,24 @@
+import 'dart:ffi';
+
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
 import 'package:ultimatedemo/main.dart';
 import 'package:ultimatedemo/screen/HomeRoute.dart';
+import 'package:ultimatedemo/widget/CustomTextButton.dart';
 
 import 'BlankScreen.dart';
 import '../widget/OutlineGradientButton.dart';
-import 'package:flutter/cupertino.dart';
+
 import 'package:flutter/material.dart';
 import 'package:animated_text_kit/animated_text_kit.dart';
-import 'package:flutter/widgets.dart';
+
 import 'package:flutter_animate/flutter_animate.dart';
 
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 import '../widget/MyTextField.dart';
-import '../widget/LoginButton.dart';
+import '../widget/AnimatedButton.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:el_tooltip/el_tooltip.dart';
 
@@ -39,14 +44,18 @@ class LoginScreen extends StatefulWidget {
   final _studentIDFieldValidateKey = GlobalKey<FormFieldState>();
   final _nameFieldValidateKey = GlobalKey<FormFieldState>();
   final _passwordFieldValidateKey = GlobalKey<FormFieldState>();
+  final _confirmPasswordFieldValidateKey = GlobalKey<FormFieldState>();
+
   final _studentIDFieldKey = GlobalKey<MyTextFieldState>();
   final _nameFieldKey = GlobalKey<MyTextFieldState>();
   final _passwordFieldKey = GlobalKey<MyTextFieldState>();
+  final _confirmPasswordFieldKey = GlobalKey<MyTextFieldState>();
 
   late MyTextField _studentIDFormField;
   late MyTextField _nameFormField;
   late MyTextField _passwordFormField;
-  late LoginButton _loginButton;
+  late MyTextField _confirmPasswordFormField;
+
   late List<GlobalKey<FormFieldState>> formFieldValidateKeys = [];
   late List<MyTextField> formFields = [];
 
@@ -62,79 +71,81 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen>
     with TickerProviderStateMixin {
+  bool? isLogin = true;
   TextEditingController _studentIdController = TextEditingController();
   TextEditingController _nameController = TextEditingController();
   TextEditingController _passwordController = TextEditingController();
+  TextEditingController _confirmPasswordController = TextEditingController();
   bool _showWhiteBackground = false;
   // late AnimationController _pageAnimationController;
   // late Animation<Color?> _pageAnimation;
   @override
   void initState() {
     super.initState();
-    widget._loginButton = LoginButton(
-      height: 50,
-      // width: 180,
-      roundLoadingShape: true,
-      onTap: (startLoading, stopLoading, btnState) {
-        FocusScope.of(context).unfocus();
-        if (widget._formValidateKey.currentState!.validate()) {
-          if (btnState == ButtonState.Idle) {
-            startLoading();
+    // widget._loginButton = LoginButton(
+    //   height: 40,
+    //   // width: 180,
+    //   roundLoadingShape: true,
+    //   onTap: (startLoading, stopLoading, btnState) {
+    //     FocusScope.of(context).unfocus();
+    //     if (widget._formValidateKey.currentState!.validate()) {
+    //       if (btnState == ButtonState.Idle) {
+    //         startLoading();
 
-            Future.delayed(Duration(seconds: 1), () {
-              bool isAuth = stopLoading(_studentIdController.text,
-                  _nameController.text, _passwordController.text);
-              Future.delayed(Duration(milliseconds: 500), () {
-                if (!isAuth) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('user not exist!!!'),
-                      backgroundColor: Colors.red,
-                      behavior: SnackBarBehavior.floating,
-                    ), // 设置为floating以从顶部出现
-                  );
-                } else {
-                  Navigator.of(context).pushReplacement(
-                    PageRouteBuilder(
-                      transitionDuration: Duration(seconds: 3), // 动画持续时间
-                      pageBuilder: (context, animation, secondaryAnimation) {
-                        return AllWhiteScreen(); // 替换成你要跳转的页面
-                      },
-                      transitionsBuilder:
-                          (context, animation, secondaryAnimation, child) {
-                        return FadeTransition(
-                          // 使用 FadeTransition 进行淡入淡出动画
-                          opacity: animation,
-                          child: child,
-                        );
-                      },
-                    ),
-                  );
-                  widget._animationController.reverse();
-                  
-                }
-              });
-            });
-          } else {}
-        } else {
-          // 表单校验未通过，执行动画突出显示未通过校验的输入框
-          _animateInvalidInputFields();
-        }
-      },
-      loader: Container(
-        padding: EdgeInsets.all(10),
-        child: const SpinKitHourGlass(
-          color: Color.fromARGB(255, 20, 235, 243),
-          // size: loaderWidth ,
-        ),
-      ),
-      borderRadius: 5.0,
-      color: Colors.black,
-      child: const Text('Login',
-          style:
-              TextStyle(color: Color.fromARGB(255, 7, 250, 238), fontSize: 20)),
-    );
+    //         Future.delayed(Duration(seconds: 1), () {
+    //           bool isAuth = stopLoading(_studentIdController.text,
+    //               _nameController.text, _passwordController.text);
+    //           Future.delayed(Duration(milliseconds: 500), () {
+    //             if (!isAuth) {
+    //               ScaffoldMessenger.of(context).showSnackBar(
+    //                 const SnackBar(
+    //                   content: Text('user not exist!!!'),
+    //                   backgroundColor: Colors.red,
+    //                   behavior: SnackBarBehavior.floating,
+    //                 ), // 设置为floating以从顶部出现
+    //               );
+    //             } else {
+    //               Navigator.of(context).pushReplacement(
+    //                 PageRouteBuilder(
+    //                   transitionDuration: Duration(seconds: 3), // 动画持续时间
+    //                   pageBuilder: (context, animation, secondaryAnimation) {
+    //                     return AllWhiteScreen(); // 替换成你要跳转的页面
+    //                   },
+    //                   transitionsBuilder:
+    //                       (context, animation, secondaryAnimation, child) {
+    //                     return FadeTransition(
+    //                       // 使用 FadeTransition 进行淡入淡出动画
+    //                       opacity: animation,
+    //                       child: child,
+    //                     );
+    //                   },
+    //                 ),
+    //               );
+    //               widget._animationController.reverse();
+    //             }
+    //           });
+    //         });
+    //       } else {}
+    //     } else {
+    //       // 表单校验未通过，执行动画突出显示未通过校验的输入框
+    //       _animateInvalidInputFields();
+    //     }
+    //   },
+    //   loader: Container(
+    //     padding: EdgeInsets.all(10),
+    //     child: const SpinKitHourGlass(
+    //       color: Color.fromARGB(255, 20, 235, 243),
+    //       // size: loaderWidth ,
+    //     ),
+    //   ),
+    //   borderRadius: 5.0,
+    //   color: Colors.black,
+    //   child: const Text('Login',
+    //       style:
+    //           TextStyle(color: Color.fromARGB(255, 7, 250, 238), fontSize: 20)),
+    // );
     widget._studentIDFormField = MyTextField(
+      height: 60,
       keyBoardType: TextInputType.number,
       validateKey: widget._studentIDFieldValidateKey,
       key: widget._studentIDFieldKey,
@@ -168,13 +179,27 @@ class _LoginScreenState extends State<LoginScreen>
       controller: _passwordController,
     );
 
+    widget._confirmPasswordFormField = MyTextField(
+      keyBoardType: TextInputType.visiblePassword,
+      validateKey: widget._confirmPasswordFieldValidateKey,
+      key: widget._confirmPasswordFieldKey,
+      labelText: 'ConfirmPassword',
+      prefixIcon: Icons.lock_outline,
+      isPassword: true,
+      regExp: RegExp(r'^(?=.*[a-zA-Z])(?=.*\d)[a-zA-Z\d]+$'),
+      invalidHint: 'equal to Password!!!',
+      controller: _confirmPasswordController,
+    );
+
     widget.formFields.add(widget._studentIDFormField);
     widget.formFields.add(widget._nameFormField);
     widget.formFields.add(widget._passwordFormField);
+    //widget.formFields.add(widget._confirmPasswordFormField);
 
     widget.formFieldValidateKeys.add(widget._studentIDFieldValidateKey);
     widget.formFieldValidateKeys.add(widget._nameFieldValidateKey);
     widget.formFieldValidateKeys.add(widget._passwordFieldValidateKey);
+    // widget.formFieldValidateKeys.add(widget._confirmPasswordFieldValidateKey);
     _startBackgroundImageAnimation();
 
     widget._animationController = AnimationController(
@@ -215,7 +240,7 @@ class _LoginScreenState extends State<LoginScreen>
     _studentIdController.dispose();
     _nameController.dispose();
     _passwordController.dispose();
-
+    _confirmPasswordController.dispose();
     widget._animationController.dispose();
     super.dispose();
   }
@@ -284,7 +309,7 @@ class _LoginScreenState extends State<LoginScreen>
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       SizedBox(height: 300),
-                      SizedBox(height: 250.0),
+                      SizedBox(height: 240.0),
                       Column(
                           children: AnimateList(
                         interval: 300.ms,
@@ -303,6 +328,32 @@ class _LoginScreenState extends State<LoginScreen>
                             height: 5,
                           ),
                           widget._passwordFormField,
+                          SizedBox(
+                            height: 5,
+                          ),
+                          Container(
+                            height: 60,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                CustomTextButton(
+                                    onPressed: null, buttonText: 'Register'),
+                                Text(
+                                  ' or ',
+                                  style: GoogleFonts.aboreto(
+                                    textStyle: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16,
+                                      color: Colors.amberAccent,
+                                    ),
+                                  ),
+                                ),
+                                CustomTextButton(
+                                    onPressed: null, buttonText: 'forgot?'),
+                              ],
+                            ),
+                          )
+                          //widget._confirmPasswordFormField,
                         ],
                       )),
                       SizedBox(height: 10.0),
@@ -313,7 +364,81 @@ class _LoginScreenState extends State<LoginScreen>
                           ),
                           Container(
                             width: MediaQuery.of(context).size.width / 3,
-                            child: Center(child: widget._loginButton),
+                            child: Center(
+                                child: MyButton(
+                              height: 40,
+                              // width: 180,
+                              roundLoadingShape: true,
+                              onTap: (startLoading, stopLoading, btnState) {
+                                FocusScope.of(context).unfocus();
+                                if (widget._formValidateKey.currentState!
+                                    .validate()) {
+                                  if (btnState == ButtonState.Idle) {
+                                    startLoading();
+
+                                    Future.delayed(Duration(seconds: 1), () {
+                                      bool isAuth = stopLoading(
+                                          _studentIdController.text,
+                                          _nameController.text,
+                                          _passwordController.text);
+                                      Future.delayed(
+                                          Duration(milliseconds: 500), () {
+                                        if (!isAuth) {
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(
+                                            const SnackBar(
+                                              content:
+                                                  Text('user not exist!!!'),
+                                              backgroundColor: Colors.red,
+                                              behavior:
+                                                  SnackBarBehavior.floating,
+                                            ), // 设置为floating以从顶部出现
+                                          );
+                                        } else {
+                                          Navigator.of(context).pushReplacement(
+                                            PageRouteBuilder(
+                                              transitionDuration: Duration(
+                                                  seconds: 3), // 动画持续时间
+                                              pageBuilder: (context, animation,
+                                                  secondaryAnimation) {
+                                                return AllWhiteScreen(); // 替换成你要跳转的页面
+                                              },
+                                              transitionsBuilder: (context,
+                                                  animation,
+                                                  secondaryAnimation,
+                                                  child) {
+                                                return FadeTransition(
+                                                  // 使用 FadeTransition 进行淡入淡出动画
+                                                  opacity: animation,
+                                                  child: child,
+                                                );
+                                              },
+                                            ),
+                                          );
+                                          widget._animationController.reverse();
+                                        }
+                                      });
+                                    });
+                                  } else {}
+                                } else {
+                                  // 表单校验未通过，执行动画突出显示未通过校验的输入框
+                                  _animateInvalidInputFields();
+                                }
+                              },
+                              loader: Container(
+                                padding: EdgeInsets.all(10),
+                                child: const SpinKitHourGlass(
+                                  color: Color.fromARGB(255, 20, 235, 243),
+                                  // size: loaderWidth ,
+                                ),
+                              ),
+                              borderRadius: 5.0,
+                              color: Colors.black,
+                              child: Text(isLogin! ? 'Login' : 'SignUp',
+                                  style: const TextStyle(
+                                      color: Color.fromARGB(255, 7, 250, 238),
+                                      fontSize: 20)),
+                            )),
                           ),
                           const ElTooltip(
                             position: ElTooltipPosition.leftEnd,
@@ -341,10 +466,13 @@ class _LoginScreenState extends State<LoginScreen>
                   width: 50,
                   child: OutlineGradientButton(
                     inkWell: true,
-                    onTap: () => Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(builder: (context) => HomeRoute()),
-                    ),
+                    onTap: () {
+                      Future.value(0);
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(builder: (context) => HomeRoute()),
+                      );
+                    },
                     gradient: LinearGradient(
                       colors: List.generate(
                           360,
@@ -383,8 +511,8 @@ class _LoginScreenState extends State<LoginScreen>
     });
   }
 
-  void _startBackgroundImageAnimation() {
-    Future.delayed(Duration(seconds: 8), () {
+  void _startBackgroundImageAnimation() async {
+    await Future.delayed(Duration(seconds: 8), () {
       setState(() {
         _currentIndex++;
       });

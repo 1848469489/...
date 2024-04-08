@@ -58,7 +58,7 @@ class MyTextField extends StatefulWidget {
       width: (isAnimating
           ? 300.0
           : widget.width ?? MediaQuery.of(context).size.width / 2),
-      height: widget.height ?? 75,
+      height: widget.height ?? 60,
 
       decoration: BoxDecoration(
         color: Colors.black,

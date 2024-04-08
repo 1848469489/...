@@ -236,9 +236,97 @@ class Page2 extends StatefulWidget {
   State<Page2> createState() => _Page2State();
 }
 
+class user {
+  final int id;
+  final String username;
+
+  const user({required this.id, required this.username});
+  factory user.fromJson(Map<String, dynamic> json) {
+    return switch (json) {
+      {
+        'id': int id,
+        'username': String username,
+      } =>
+        user(
+          id: id,
+          username: username,
+        ),
+      _ => throw const FormatException('Failed to load user.'),
+    };
+  }
+}
+
+// class Album {
+//   final int id;
+//   final String title;
+
+//   const Album({required this.id, required this.title});
+
+//   factory Album.fromJson(Map<String, dynamic> json) {
+//     return switch (json) {
+//       {
+//         'id': int id,
+//         'title': String title,
+//       } =>
+//         Album(
+//           id: id,
+//           title: title,
+//         ),
+//       _ => throw const FormatException('Failed to load album.'),
+//     };
+//   }
+// }
+Future<user> registerUser(String username,String password,String confirm_password) async {
+  final response = await http.post(
+    Uri.parse('http://192.168.123.23:8000/api/v2/register/'),
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+    },
+    body: jsonEncode(<String, String>{
+      'username':username,
+      'password':password,
+      'confirm_password':confirm_password,
+
+    }),
+  );
+
+  if (response.statusCode == 201) {
+    // If the server did return a 201 CREATED response,
+    // then parse the JSON.
+    return user.fromJson(jsonDecode(response.body) as Map<String, dynamic>);
+  } else {
+    // If the server did not return a 201 CREATED response,
+    // then throw an exception.
+    throw Exception('Failed to .');
+  }
+}
+// Future<Album> createAlbum(String title) async {
+//   final response = await http.post(
+//     Uri.parse('https://jsonplaceholder.typicode.com/albums'),
+//     headers: <String, String>{
+//       'Content-Type': 'application/json; charset=UTF-8',
+//     },
+//     body: jsonEncode(<String, String>{
+//       'title': title,
+//     }),
+//   );
+
+//   if (response.statusCode == 201) {
+//     // If the server did return a 201 CREATED response,
+//     // then parse the JSON.
+//     return Album.fromJson(jsonDecode(response.body) as Map<String, dynamic>);
+//   } else {
+//     // If the server did not return a 201 CREATED response,
+//     // then throw an exception.
+//     throw Exception('Failed to create album.');
+//   }
+// }
+
 class _Page2State extends State<Page2> with AutomaticKeepAliveClientMixin {
   int _counter = 0;
-  late Future<Album> futureAlbum;
+  final TextEditingController _controller = TextEditingController();
+  // Future<Album>? _futureAlbum;
+  Future<user>? _futureUser;
   void _incrementCounter() {
     setState(() {
       _counter++;
@@ -248,55 +336,68 @@ class _Page2State extends State<Page2> with AutomaticKeepAliveClientMixin {
   @override
   void initState() {
     super.initState();
-    futureAlbum = fetchAlbum();
   }
 
-  Future<Album> fetchAlbum() async {
-    final response = await http
-        .get(Uri.parse('https://jsonplaceholder.typicode.com/albums/2'));
+  // FutureBuilder<Album> buildFutureBuilder() {
+  //   return FutureBuilder<Album>(
+  //     future: _futureAlbum,
+  //     builder: (context, snapshot) {
+  //       if (snapshot.hasData) {
+  //         return Text(snapshot.data!.title + "---"+ snapshot.data!.id.toString());
+  //       } else if (snapshot.hasError) {
+  //         return Text('${snapshot.error}');
+  //       }
 
-    if (response.statusCode == 200) {
-      // If the server did return a 200 OK response,
-      // then parse the JSON.
-      return Album.fromJson(jsonDecode(response.body) as Map<String, dynamic>);
-    } else {
-      // If the server did not return a 200 OK response,
-      // then throw an exception.
-      throw Exception('Failed to load album');
-    }
+  //       return const CircularProgressIndicator();
+  //     },
+  //   );
+  // }
+  FutureBuilder<user> buildFutureBuilder() {
+    return FutureBuilder<user>(
+      future: _futureUser,
+      builder: (context, snapshot) {
+        if (snapshot.hasData) {
+          return Text(
+              snapshot.data!.username + "---" + snapshot.data!.id.toString());
+        } else if (snapshot.hasError) {
+          return Text('${snapshot.error}');
+        }
+
+        return const CircularProgressIndicator();
+      },
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          FutureBuilder<Album>(
-            future: futureAlbum,
-            builder: (context, snapshot) {
-              if (snapshot.hasData) {
-                return Text(snapshot.data!.title);
-              } else if (snapshot.hasError) {
-                return Text('${snapshot.error}');
-              }
-
-              // By default, show a loading spinner.
-              return const CircularProgressIndicator();
-            },
-          ),
-          Text(
-            '$_counter',
-            style: Theme.of(context).textTheme.headlineMedium,
-          ),
-          ElevatedButton(
-            onPressed: _incrementCounter,
-            child: null,
-          )
-        ],
+      child: Container(
+        alignment: Alignment.center,
+        padding: const EdgeInsets.all(8),
+        child: (_futureUser == null) ? buildColumn() : buildFutureBuilder(),
       ),
     );
     // This trailing comma makes auto-formatting nicer for build methods.
+  }
+
+  Column buildColumn() {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: <Widget>[
+        TextField(
+          controller: _controller,
+          decoration: const InputDecoration(hintText: 'Enter Title'),
+        ),
+        ElevatedButton(
+          onPressed: () {
+            setState(() {
+              _futureUser = registerUser('abcd','123456','123456');
+            });
+          },
+          child: const Text('Create Data'),
+        ),
+      ],
+    );
   }
 
   @override
@@ -394,32 +495,4 @@ class _Page4State extends State<Page4> with AutomaticKeepAliveClientMixin {
   @override
   // TODO: implement wantKeepAlive
   bool get wantKeepAlive => true;
-}
-
-class Album {
-  final int userId;
-  final int id;
-  final String title;
-
-  const Album({
-    required this.userId,
-    required this.id,
-    required this.title,
-  });
-
-  factory Album.fromJson(Map<String, dynamic> json) {
-    return switch (json) {
-      {
-        'userId': int userId,
-        'id': int id,
-        'title': String title,
-      } =>
-        Album(
-          userId: userId,
-          id: id,
-          title: title,
-        ),
-      _ => throw const FormatException('Failed to load album.'),
-    };
-  }
 }

@@ -9,7 +9,7 @@ enum ButtonState { Busy, Idle }
 late AnimationController _checkmarkAnimationController;
 late Animation<double> _checkmarkAnimation;
 
-class LoginButton extends StatefulWidget {
+class MyButton extends StatefulWidget {
   final double height;
   final double? width;
   final double minWidth;
@@ -43,7 +43,7 @@ class LoginButton extends StatefulWidget {
   final Color? disabledColor;
   final Color? disabledTextColor;
   final Widget? success;
-  LoginButton(
+  MyButton(
       {required this.height,
       this.success,
       this.width,
@@ -82,10 +82,10 @@ class LoginButton extends StatefulWidget {
         assert(clipBehavior != null);
 
   @override
-  _LoginButtonState createState() => _LoginButtonState();
+  _MyButtonState createState() => _MyButtonState();
 }
 
-class _LoginButtonState extends State<LoginButton>
+class _MyButtonState extends State<MyButton>
     with TickerProviderStateMixin {
   double? loaderWidth;
 
@@ -213,7 +213,7 @@ class _LoginButtonState extends State<LoginButton>
               if (states.contains(MaterialState.pressed)) {
                 return Colors.blueAccent;
               }
-              return Colors.black;
+              return widget.color??Colors.black;
             }),
             overlayColor: MaterialStateProperty.all(widget.focusColor),
             elevation: MaterialStateProperty.all(widget.elevation),
