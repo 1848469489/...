@@ -36,10 +36,6 @@ List _backgroundImages = [
 ];
 
 class LoginScreen extends StatefulWidget {
-  // GlobalKey<_LoginScreenState> key;
-  // LoginScreen({
-  //   required this.key,
-  // });
   final _formValidateKey = GlobalKey<FormState>(); // Form key
   final _studentIDFieldValidateKey = GlobalKey<FormFieldState>();
   final _nameFieldValidateKey = GlobalKey<FormFieldState>();
@@ -71,79 +67,17 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen>
     with TickerProviderStateMixin {
-  bool? isLogin = true;
+  bool isLogin = true;
   TextEditingController _studentIdController = TextEditingController();
   TextEditingController _nameController = TextEditingController();
   TextEditingController _passwordController = TextEditingController();
   TextEditingController _confirmPasswordController = TextEditingController();
   bool _showWhiteBackground = false;
-  // late AnimationController _pageAnimationController;
-  // late Animation<Color?> _pageAnimation;
+
   @override
   void initState() {
     super.initState();
-    // widget._loginButton = LoginButton(
-    //   height: 40,
-    //   // width: 180,
-    //   roundLoadingShape: true,
-    //   onTap: (startLoading, stopLoading, btnState) {
-    //     FocusScope.of(context).unfocus();
-    //     if (widget._formValidateKey.currentState!.validate()) {
-    //       if (btnState == ButtonState.Idle) {
-    //         startLoading();
 
-    //         Future.delayed(Duration(seconds: 1), () {
-    //           bool isAuth = stopLoading(_studentIdController.text,
-    //               _nameController.text, _passwordController.text);
-    //           Future.delayed(Duration(milliseconds: 500), () {
-    //             if (!isAuth) {
-    //               ScaffoldMessenger.of(context).showSnackBar(
-    //                 const SnackBar(
-    //                   content: Text('user not exist!!!'),
-    //                   backgroundColor: Colors.red,
-    //                   behavior: SnackBarBehavior.floating,
-    //                 ), // 设置为floating以从顶部出现
-    //               );
-    //             } else {
-    //               Navigator.of(context).pushReplacement(
-    //                 PageRouteBuilder(
-    //                   transitionDuration: Duration(seconds: 3), // 动画持续时间
-    //                   pageBuilder: (context, animation, secondaryAnimation) {
-    //                     return AllWhiteScreen(); // 替换成你要跳转的页面
-    //                   },
-    //                   transitionsBuilder:
-    //                       (context, animation, secondaryAnimation, child) {
-    //                     return FadeTransition(
-    //                       // 使用 FadeTransition 进行淡入淡出动画
-    //                       opacity: animation,
-    //                       child: child,
-    //                     );
-    //                   },
-    //                 ),
-    //               );
-    //               widget._animationController.reverse();
-    //             }
-    //           });
-    //         });
-    //       } else {}
-    //     } else {
-    //       // 表单校验未通过，执行动画突出显示未通过校验的输入框
-    //       _animateInvalidInputFields();
-    //     }
-    //   },
-    //   loader: Container(
-    //     padding: EdgeInsets.all(10),
-    //     child: const SpinKitHourGlass(
-    //       color: Color.fromARGB(255, 20, 235, 243),
-    //       // size: loaderWidth ,
-    //     ),
-    //   ),
-    //   borderRadius: 5.0,
-    //   color: Colors.black,
-    //   child: const Text('Login',
-    //       style:
-    //           TextStyle(color: Color.fromARGB(255, 7, 250, 238), fontSize: 20)),
-    // );
     widget._studentIDFormField = MyTextField(
       height: 60,
       keyBoardType: TextInputType.number,
@@ -186,7 +120,15 @@ class _LoginScreenState extends State<LoginScreen>
       labelText: 'ConfirmPassword',
       prefixIcon: Icons.lock_outline,
       isPassword: true,
-      regExp: RegExp(r'^(?=.*[a-zA-Z])(?=.*\d)[a-zA-Z\d]+$'),
+      validated: (value) {
+        if (value?.isEmpty ?? true) {
+          return 'Please enter your password.';
+        }
+        if (value != _passwordController.text) {
+          return 'Passwords do not match.';
+        }
+        return null;
+      },
       invalidHint: 'equal to Password!!!',
       controller: _confirmPasswordController,
     );
@@ -194,25 +136,18 @@ class _LoginScreenState extends State<LoginScreen>
     widget.formFields.add(widget._studentIDFormField);
     widget.formFields.add(widget._nameFormField);
     widget.formFields.add(widget._passwordFormField);
-    //widget.formFields.add(widget._confirmPasswordFormField);
 
     widget.formFieldValidateKeys.add(widget._studentIDFieldValidateKey);
     widget.formFieldValidateKeys.add(widget._nameFieldValidateKey);
     widget.formFieldValidateKeys.add(widget._passwordFieldValidateKey);
-    // widget.formFieldValidateKeys.add(widget._confirmPasswordFieldValidateKey);
+
     _startBackgroundImageAnimation();
 
     widget._animationController = AnimationController(
       vsync: this,
       duration: Duration(milliseconds: 2000),
     );
-    widget._studentIdOffset = Tween<Offset>(
-      begin: Offset(0.0, 1.0),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: widget._animationController,
-      curve: Interval(0.2, 1.0, curve: Curves.linear),
-    ));
+
     widget._nameOffset = Tween<Offset>(
       begin: Offset(0.0, 1.0),
       end: Offset.zero,
@@ -220,17 +155,6 @@ class _LoginScreenState extends State<LoginScreen>
       parent: widget._animationController,
       curve: Interval(0.0, 1.0, curve: Curves.elasticInOut),
     ));
-
-    widget._passwordOffset = Tween<Offset>(
-      begin: Offset(0.0, 1.0),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: widget._animationController,
-      curve: Interval(0.4, 1.0, curve: Curves.linear),
-    ));
-    widget._animationController.addListener(() {
-      setState(() {}); // 通知Flutter重建UI
-    });
 
     widget._animationController.forward();
   }
@@ -312,7 +236,7 @@ class _LoginScreenState extends State<LoginScreen>
                       SizedBox(height: 240.0),
                       Column(
                           children: AnimateList(
-                        interval: 300.ms,
+                        interval: 200.ms,
                         effects: [
                           FadeEffect(delay: 1500.ms),
                           ShimmerEffect(delay: 1500.ms),
@@ -333,25 +257,39 @@ class _LoginScreenState extends State<LoginScreen>
                           ),
                           Container(
                             height: 60,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                CustomTextButton(
-                                    onPressed: null, buttonText: 'Register'),
-                                Text(
-                                  ' or ',
-                                  style: GoogleFonts.aboreto(
-                                    textStyle: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16,
-                                      color: Colors.amberAccent,
-                                    ),
-                                  ),
-                                ),
-                                CustomTextButton(
-                                    onPressed: null, buttonText: 'forgot?'),
-                              ],
-                            ),
+                            child: isLogin
+                                ? Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      CustomTextButton(
+                                          onTap: () {
+                                            widget.formFields.add(widget
+                                                ._confirmPasswordFormField);
+                                            widget.formFieldValidateKeys.add(widget
+                                                ._confirmPasswordFieldValidateKey);
+                                            isLogin = false;
+                                            rebuild();
+                                          },
+                                          buttonText: 'Register'),
+                                      Text(
+                                        ' or ',
+                                        style: GoogleFonts.aboreto(
+                                          textStyle: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 16,
+                                            color: Colors.amberAccent,
+                                          ),
+                                        ),
+                                      ),
+                                      CustomTextButton(
+                                          onTap: null, buttonText: 'forgot?'),
+                                    ],
+                                  )
+                                : widget._confirmPasswordFormField
+                                    .animate()
+                                    .saturate()
+                                    .scale()
+                                    .fadeIn(),
                           )
                           //widget._confirmPasswordFormField,
                         ],
@@ -377,47 +315,79 @@ class _LoginScreenState extends State<LoginScreen>
                                     startLoading();
 
                                     Future.delayed(Duration(seconds: 1), () {
-                                      bool isAuth = stopLoading(
-                                          _studentIdController.text,
-                                          _nameController.text,
-                                          _passwordController.text);
-                                      Future.delayed(
-                                          Duration(milliseconds: 500), () {
-                                        if (!isAuth) {
-                                          ScaffoldMessenger.of(context)
-                                              .showSnackBar(
-                                            const SnackBar(
-                                              content:
-                                                  Text('user not exist!!!'),
-                                              backgroundColor: Colors.red,
-                                              behavior:
-                                                  SnackBarBehavior.floating,
-                                            ), // 设置为floating以从顶部出现
-                                          );
-                                        } else {
-                                          Navigator.of(context).pushReplacement(
-                                            PageRouteBuilder(
-                                              transitionDuration: Duration(
-                                                  seconds: 3), // 动画持续时间
-                                              pageBuilder: (context, animation,
-                                                  secondaryAnimation) {
-                                                return AllWhiteScreen(); // 替换成你要跳转的页面
-                                              },
-                                              transitionsBuilder: (context,
-                                                  animation,
-                                                  secondaryAnimation,
-                                                  child) {
-                                                return FadeTransition(
-                                                  // 使用 FadeTransition 进行淡入淡出动画
-                                                  opacity: animation,
-                                                  child: child,
-                                                );
-                                              },
-                                            ),
-                                          );
-                                          widget._animationController.reverse();
-                                        }
-                                      });
+                                      if (isLogin) {
+                                        bool isAuth = stopLoading(
+                                            _studentIdController.text,
+                                            _nameController.text,
+                                            _passwordController.text);
+                                        Future.delayed(
+                                            Duration(milliseconds: 500), () {
+                                          if (!isAuth) {
+                                            ScaffoldMessenger.of(context)
+                                                .showSnackBar(
+                                              const SnackBar(
+                                                content:
+                                                    Text('user not exist!!!'),
+                                                backgroundColor: Colors.red,
+                                                behavior:
+                                                    SnackBarBehavior.floating,
+                                              ), // 设置为floating以从顶部出现
+                                            );
+                                          } else {
+                                            Navigator.of(context)
+                                                .pushReplacement(
+                                              PageRouteBuilder(
+                                                transitionDuration: Duration(
+                                                    seconds: 3), // 动画持续时间
+                                                pageBuilder: (context,
+                                                    animation,
+                                                    secondaryAnimation) {
+                                                  return AllWhiteScreen(); // 替换成你要跳转的页面
+                                                },
+                                                transitionsBuilder: (context,
+                                                    animation,
+                                                    secondaryAnimation,
+                                                    child) {
+                                                  return FadeTransition(
+                                                    // 使用 FadeTransition 进行淡入淡出动画
+                                                    opacity: animation,
+                                                    child: child,
+                                                  );
+                                                },
+                                              ),
+                                            );
+                                            widget._animationController
+                                                .reverse();
+                                          }
+                                        });
+                                      } else {
+                                        // if(_confirmPasswordController.text == _passwordController){
+                                        //   Navigator.of(context)
+                                        //         .pushReplacement(
+                                        //       PageRouteBuilder(
+                                        //         transitionDuration: Duration(
+                                        //             seconds: 3), // 动画持续时间
+                                        //         pageBuilder: (context,
+                                        //             animation,
+                                        //             secondaryAnimation) {
+                                        //           return AllWhiteScreen(); // 替换成你要跳转的页面
+                                        //         },
+                                        //         transitionsBuilder: (context,
+                                        //             animation,
+                                        //             secondaryAnimation,
+                                        //             child) {
+                                        //           return FadeTransition(
+                                        //             // 使用 FadeTransition 进行淡入淡出动画
+                                        //             opacity: animation,
+                                        //             child: child,
+                                        //           );
+                                        //         },
+                                        //       ),
+                                        //     );
+                                        //     widget._animationController
+                                        //         .reverse();
+                                        // }
+                                      }
                                     });
                                   } else {}
                                 } else {

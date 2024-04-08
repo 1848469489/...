@@ -3,12 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class CustomTextButton extends StatefulWidget {
-  final VoidCallback? onPressed;
+  final VoidCallback? onTap;
   final String buttonText;
 
   const CustomTextButton({
     Key? key,
-    required this.onPressed,
+    required this.onTap,
     required this.buttonText,
   }) : super(key: key);
 
@@ -22,6 +22,7 @@ class _CustomTextButtonState extends State<CustomTextButton> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
+      onTap: widget.onTap ?? () {},
       onTapDown: (_) {
         setState(() {
           isPressed = true;

@@ -97,7 +97,7 @@ class MyTextField extends StatefulWidget {
               enabledBorder: InputBorder.none,
             ),
             obscureText: widget.isPassword && _isPasswordVisible,
-            validator: (value) {
+            validator: widget.validated ??(value) {
               if ((value?.isEmpty ?? true) ||
                   (widget.regExp == null
                       ? !RegExp(r'^\S+$').hasMatch(value!)

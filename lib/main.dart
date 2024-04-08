@@ -8,23 +8,6 @@ import 'package:provider/provider.dart';
 
 void main() => runApp(MyApp());
 
-// class LoginApp extends StatelessWidget {
-//   @override
-//   Widget build(BuildContext context) {
-//     return GetMaterialApp(
-//       color: Colors.white,
-//       debugShowCheckedModeBanner: false,
-//       // 定义路由表
-//       routes: {
-//         LoginScreen.routeName: (context) => LoginScreen(),
-//         HomeRoute.routeName: (context) => HomeRoute(),
-//       },
-//       home: SplashScreen(),
-//       title: 'Login Form',
-//       theme: ThemeData(primarySwatch: Colors.blue),
-//     );
-//   }
-// }
 class MyApp extends StatefulWidget {
   @override
   State<StatefulWidget> createState() => MyAppState();
