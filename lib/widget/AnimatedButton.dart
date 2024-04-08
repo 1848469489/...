@@ -85,8 +85,7 @@ class MyButton extends StatefulWidget {
   _MyButtonState createState() => _MyButtonState();
 }
 
-class _MyButtonState extends State<MyButton>
-    with TickerProviderStateMixin {
+class _MyButtonState extends State<MyButton> with TickerProviderStateMixin {
   double? loaderWidth;
 
   bool? isSucceed = false;
@@ -213,7 +212,7 @@ class _MyButtonState extends State<MyButton>
               if (states.contains(MaterialState.pressed)) {
                 return Colors.blueAccent;
               }
-              return widget.color??Colors.black;
+              return widget.color ?? Colors.black;
             }),
             overlayColor: MaterialStateProperty.all(widget.focusColor),
             elevation: MaterialStateProperty.all(widget.elevation),

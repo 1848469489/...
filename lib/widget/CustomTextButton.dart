@@ -43,7 +43,7 @@ class _CustomTextButtonState extends State<CustomTextButton> {
           widget.buttonText,
           style: GoogleFonts.aboreto(
             textStyle: TextStyle(
-              fontWeight: FontWeight.bold,
+              fontWeight: isPressed ? FontWeight.w900 :FontWeight.w100,
               fontSize: 16,
               color: Colors.amberAccent,
               decoration:

@@ -3,7 +3,7 @@ import 'dart:ffi';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
-import 'package:ultimatedemo/main.dart';
+
 import 'package:ultimatedemo/screen/HomeRoute.dart';
 import 'package:ultimatedemo/widget/CustomTextButton.dart';
 
@@ -21,19 +21,6 @@ import '../widget/MyTextField.dart';
 import '../widget/AnimatedButton.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:el_tooltip/el_tooltip.dart';
-
-int _currentIndex = 0;
-List _backgroundImages = [
-  'assets/images/miku02.jpg',
-  'assets/images/miku03.jpg',
-  'assets/images/miku04.jpg',
-  'assets/images/miku05.jpg',
-  'assets/images/miku06.jpg',
-  'assets/images/miku07.jpg',
-  'assets/images/miku08.jpg',
-  'assets/images/20240326230235.jpg',
-  'assets/images/20240326230337.jpg',
-];
 
 class LoginScreen extends StatefulWidget {
   final _formValidateKey = GlobalKey<FormState>(); // Form key
@@ -55,10 +42,21 @@ class LoginScreen extends StatefulWidget {
   late List<GlobalKey<FormFieldState>> formFieldValidateKeys = [];
   late List<MyTextField> formFields = [];
 
-  late AnimationController _animationController;
   late Animation<Offset> _nameOffset;
   late Animation<Offset> _studentIdOffset;
   late Animation<Offset> _passwordOffset;
+
+  List _backgroundImages = [
+    'assets/images/miku02.jpg',
+    'assets/images/miku03.jpg',
+    'assets/images/miku04.jpg',
+    'assets/images/miku05.jpg',
+    'assets/images/miku06.jpg',
+    'assets/images/miku07.jpg',
+    'assets/images/miku08.jpg',
+    'assets/images/20240326230235.jpg',
+    'assets/images/20240326230337.jpg',
+  ];
 
   static const routeName = '/login';
   @override
@@ -67,12 +65,16 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen>
     with TickerProviderStateMixin {
+  int _currentIndex = 0;
+
   bool isLogin = true;
+
+  late AnimationController _animationController;
+
   TextEditingController _studentIdController = TextEditingController();
   TextEditingController _nameController = TextEditingController();
   TextEditingController _passwordController = TextEditingController();
   TextEditingController _confirmPasswordController = TextEditingController();
-  bool _showWhiteBackground = false;
 
   @override
   void initState() {
@@ -143,7 +145,7 @@ class _LoginScreenState extends State<LoginScreen>
 
     _startBackgroundImageAnimation();
 
-    widget._animationController = AnimationController(
+    _animationController = AnimationController(
       vsync: this,
       duration: Duration(milliseconds: 2000),
     );
@@ -152,11 +154,11 @@ class _LoginScreenState extends State<LoginScreen>
       begin: Offset(0.0, 1.0),
       end: Offset.zero,
     ).animate(CurvedAnimation(
-      parent: widget._animationController,
+      parent: _animationController,
       curve: Interval(0.0, 1.0, curve: Curves.elasticInOut),
     ));
 
-    widget._animationController.forward();
+    _animationController.forward();
   }
 
   @override
@@ -165,7 +167,7 @@ class _LoginScreenState extends State<LoginScreen>
     _nameController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
-    widget._animationController.dispose();
+    _animationController.dispose();
     super.dispose();
   }
 
@@ -177,9 +179,10 @@ class _LoginScreenState extends State<LoginScreen>
           AnimatedSwitcher(
             duration: Duration(seconds: 4),
             child: Image.asset(
-              _backgroundImages[_currentIndex % _backgroundImages.length],
-              key: ValueKey(
-                  _backgroundImages[_currentIndex % _backgroundImages.length]),
+              widget._backgroundImages[
+                  _currentIndex % widget._backgroundImages.length],
+              key: ValueKey(widget._backgroundImages[
+                  _currentIndex % widget._backgroundImages.length]),
               fit: BoxFit.cover,
               width: double.infinity,
               height: double.infinity,
@@ -356,38 +359,10 @@ class _LoginScreenState extends State<LoginScreen>
                                                 },
                                               ),
                                             );
-                                            widget._animationController
-                                                .reverse();
+                                            _animationController.reverse();
                                           }
                                         });
-                                      } else {
-                                        // if(_confirmPasswordController.text == _passwordController){
-                                        //   Navigator.of(context)
-                                        //         .pushReplacement(
-                                        //       PageRouteBuilder(
-                                        //         transitionDuration: Duration(
-                                        //             seconds: 3), // 动画持续时间
-                                        //         pageBuilder: (context,
-                                        //             animation,
-                                        //             secondaryAnimation) {
-                                        //           return AllWhiteScreen(); // 替换成你要跳转的页面
-                                        //         },
-                                        //         transitionsBuilder: (context,
-                                        //             animation,
-                                        //             secondaryAnimation,
-                                        //             child) {
-                                        //           return FadeTransition(
-                                        //             // 使用 FadeTransition 进行淡入淡出动画
-                                        //             opacity: animation,
-                                        //             child: child,
-                                        //           );
-                                        //         },
-                                        //       ),
-                                        //     );
-                                        //     widget._animationController
-                                        //         .reverse();
-                                        // }
-                                      }
+                                      } else {}
                                     });
                                   } else {}
                                 } else {
