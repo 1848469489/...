@@ -15,6 +15,8 @@ class MyApp extends StatefulWidget {
 
 class MyAppState extends State<MyApp> with ChangeNotifier {
   late bool isAuth = false;
+  String token = '';
+  String userName = '';
   @override
   void initState() {
     super.initState();

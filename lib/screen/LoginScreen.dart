@@ -3,6 +3,10 @@ import 'dart:ffi';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
+import 'package:ultimatedemo/main.dart';
+import 'package:ultimatedemo/modelfrombackend/LoginResult.dart';
+import 'package:ultimatedemo/modeltobackend/LoginJson.dart';
+import 'package:ultimatedemo/request.dart';
 
 import 'package:ultimatedemo/screen/HomeRoute.dart';
 import 'package:ultimatedemo/widget/CustomTextButton.dart';
@@ -24,26 +28,28 @@ import 'package:el_tooltip/el_tooltip.dart';
 
 class LoginScreen extends StatefulWidget {
   final _formValidateKey = GlobalKey<FormState>(); // Form key
-  final _studentIDFieldValidateKey = GlobalKey<FormFieldState>();
-  final _nameFieldValidateKey = GlobalKey<FormFieldState>();
+  final _phonenumberFieldValidateKey = GlobalKey<FormFieldState>();
+  final _userNameFieldValidateKey = GlobalKey<FormFieldState>();
   final _passwordFieldValidateKey = GlobalKey<FormFieldState>();
   final _confirmPasswordFieldValidateKey = GlobalKey<FormFieldState>();
 
-  final _studentIDFieldKey = GlobalKey<MyTextFieldState>();
-  final _nameFieldKey = GlobalKey<MyTextFieldState>();
+  final _phonenumberFieldKey = GlobalKey<MyTextFieldState>();
+  final _userNameFieldKey = GlobalKey<MyTextFieldState>();
   final _passwordFieldKey = GlobalKey<MyTextFieldState>();
   final _confirmPasswordFieldKey = GlobalKey<MyTextFieldState>();
+  final _myButtonKey = GlobalKey<MyButtonState>();
 
-  late MyTextField _studentIDFormField;
-  late MyTextField _nameFormField;
+  late MyTextField _phonenumberFormField;
+  late MyTextField _userNameFormField;
   late MyTextField _passwordFormField;
   late MyTextField _confirmPasswordFormField;
+  late MyButton myButton;
 
   late List<GlobalKey<FormFieldState>> formFieldValidateKeys = [];
   late List<MyTextField> formFields = [];
 
-  late Animation<Offset> _nameOffset;
-  late Animation<Offset> _studentIdOffset;
+  late Animation<Offset> _userNameOffset;
+  late Animation<Offset> _phonenumberOffset;
   late Animation<Offset> _passwordOffset;
 
   List _backgroundImages = [
@@ -71,36 +77,126 @@ class _LoginScreenState extends State<LoginScreen>
 
   late AnimationController _animationController;
 
-  TextEditingController _studentIdController = TextEditingController();
-  TextEditingController _nameController = TextEditingController();
+  TextEditingController _phonenumberController = TextEditingController();
+  TextEditingController _userNameController = TextEditingController();
   TextEditingController _passwordController = TextEditingController();
   TextEditingController _confirmPasswordController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
+    widget.myButton = MyButton(
+      key: widget._myButtonKey,
+      height: 40,
+      // width: 180,
+      roundLoadingShape: true,
+      onTap: (startLoading, success, fail, btnState) {
+        FocusScope.of(context).unfocus();
+        if (widget._formValidateKey.currentState!.validate()) {
+          if (btnState == ButtonState.Idle) {
+            startLoading();
+            Future.delayed(Duration(seconds: 1), () async {
+              LoginJson loginJson = LoginJson(
+                  password: _passwordController.text,
+                  userName: _userNameController.text,
+                  phonenumber: _phonenumberController.text);
+              //之后通过Future<User>接收根据用户名查询的用户，现假定已查到
+              LoginResult? loginResult = await login(loginJson);
 
-    widget._studentIDFormField = MyTextField(
+              // bool user = _phonenumberController.text == '12345678901' &&
+              //     _userNameController.text == 'a1' &&
+              //     _passwordController.text == 'a1';
+              //是否为登录状态且用户存在
+              if (!(isLogin ^ (loginResult != null))) {
+                if (isLogin == false) {
+                  //将注册用户信息存入数据库
+                }else{
+                  Provider.of<MyAppState>(context).updateAuthStatus(true);
+                  Provider.of<MyAppState>(context).token = loginResult!.token;
+                  Provider.of<MyAppState>(context).userName = loginResult.userName;
+                }
+
+                success();
+                Future.delayed(Duration(milliseconds: 500), () {
+                  Navigator.of(context).pushReplacement(
+                    PageRouteBuilder(
+                      transitionDuration: Duration(seconds: 3), // 动画持续时间
+                      pageBuilder: (context, animation, secondaryAnimation) {
+                        return isLogin? AllWhiteScreen():LoginScreen(); // 替换成你要跳转的页面
+                      },
+                      transitionsBuilder:
+                          (context, animation, secondaryAnimation, child) {
+                        return FadeTransition(
+                          // 使用 FadeTransition 进行淡入淡出动画
+                          opacity: animation,
+                          child: child,
+                        );
+                      },
+                    ),
+                  );
+                  _animationController.reverse();
+                });
+              } else {
+                fail();
+                Future.delayed(Duration(milliseconds: 500), () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      duration: Duration(milliseconds: 1500),
+                      content: isLogin
+                          ? Text(
+                              'login fail ! Invalid userName or password !!!')
+                          : Text('register fail !user exist!!!'),
+                      backgroundColor: Colors.red,
+                      behavior: SnackBarBehavior.floating,
+                    ), // 设置为floating以从顶部出现
+                  );
+                });
+              }
+            });
+          } else {} //按钮繁忙时按按钮什么也不做，
+        } else {
+          // 表单校验未通过，执行动画突出显示未通过校验的输入框
+          _animateInvalidInputFields();
+        }
+      },
+      loader: Container(
+        padding: EdgeInsets.all(10),
+        child: const SpinKitHourGlass(
+          color: Color.fromARGB(255, 20, 235, 243),
+        ),
+      ),
+      borderRadius: 5.0,
+      color: Colors.black,
+
+      switchChild: Text('Register',
+          style: const TextStyle(
+              color: Color.fromARGB(255, 7, 250, 238), fontSize: 20)),
+      //TODO
+      child: Text('Login',
+          style: const TextStyle(
+              color: Color.fromARGB(255, 7, 250, 238), fontSize: 20)),
+    );
+    widget._phonenumberFormField = MyTextField(
       height: 60,
       keyBoardType: TextInputType.number,
-      validateKey: widget._studentIDFieldValidateKey,
-      key: widget._studentIDFieldKey,
-      labelText: 'Student ID',
-      hintText: 'e.g. 212511061XX',
-      regExp: RegExp(r'^\d+$'),
-      invalidHint: 'consists of digits!!!',
+      validateKey: widget._phonenumberFieldValidateKey,
+      key: widget._phonenumberFieldKey,
+      labelText: 'Phonenumber',
+      hintText: 'e.g. 1xxxxxxxxxx',
+      regExp: RegExp(r'^\d{11}$'),
+      invalidHint: 'consists of eleven digits!!!',
       hintStyle: TextStyle(backgroundColor: Colors.amber, fontSize: 11),
       prefixIcon: Icons.person,
-      controller: _studentIdController,
+      controller: _phonenumberController,
     );
 
-    widget._nameFormField = MyTextField(
+    widget._userNameFormField = MyTextField(
       keyBoardType: TextInputType.multiline,
-      validateKey: widget._nameFieldValidateKey,
-      key: widget._nameFieldKey,
-      labelText: 'Name',
+      validateKey: widget._userNameFieldValidateKey,
+      key: widget._userNameFieldKey,
+      labelText: 'userName',
       prefixIcon: Icons.account_circle,
-      controller: _nameController,
+      controller: _userNameController,
     );
 
     widget._passwordFormField = MyTextField(
@@ -135,12 +231,12 @@ class _LoginScreenState extends State<LoginScreen>
       controller: _confirmPasswordController,
     );
 
-    widget.formFields.add(widget._studentIDFormField);
-    widget.formFields.add(widget._nameFormField);
+    widget.formFields.add(widget._phonenumberFormField);
+    widget.formFields.add(widget._userNameFormField);
     widget.formFields.add(widget._passwordFormField);
 
-    widget.formFieldValidateKeys.add(widget._studentIDFieldValidateKey);
-    widget.formFieldValidateKeys.add(widget._nameFieldValidateKey);
+    widget.formFieldValidateKeys.add(widget._phonenumberFieldValidateKey);
+    widget.formFieldValidateKeys.add(widget._userNameFieldValidateKey);
     widget.formFieldValidateKeys.add(widget._passwordFieldValidateKey);
 
     _startBackgroundImageAnimation();
@@ -150,7 +246,7 @@ class _LoginScreenState extends State<LoginScreen>
       duration: Duration(milliseconds: 2000),
     );
 
-    widget._nameOffset = Tween<Offset>(
+    widget._userNameOffset = Tween<Offset>(
       begin: Offset(0.0, 1.0),
       end: Offset.zero,
     ).animate(CurvedAnimation(
@@ -163,8 +259,8 @@ class _LoginScreenState extends State<LoginScreen>
 
   @override
   void dispose() {
-    _studentIdController.dispose();
-    _nameController.dispose();
+    _phonenumberController.dispose();
+    _userNameController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
     _animationController.dispose();
@@ -224,7 +320,7 @@ class _LoginScreenState extends State<LoginScreen>
             ),
           ),
           SlideTransition(
-            position: widget._nameOffset,
+            position: widget._userNameOffset,
             child: SingleChildScrollView(
               padding: EdgeInsets.only(
                 bottom: MediaQuery.of(context).viewInsets.bottom,
@@ -239,18 +335,18 @@ class _LoginScreenState extends State<LoginScreen>
                       SizedBox(height: 240.0),
                       Column(
                           children: AnimateList(
-                        interval: 200.ms,
+                        interval: 100.ms,
                         effects: [
                           FadeEffect(delay: 1500.ms),
                           ShimmerEffect(delay: 1500.ms),
                           SaturateEffect(delay: 1500.ms)
                         ],
                         children: [
-                          widget._studentIDFormField,
+                          widget._phonenumberFormField,
                           SizedBox(
                             height: 5,
                           ),
-                          widget._nameFormField,
+                          widget._userNameFormField,
                           SizedBox(
                             height: 5,
                           ),
@@ -266,6 +362,8 @@ class _LoginScreenState extends State<LoginScreen>
                                     children: [
                                       CustomTextButton(
                                           onTap: () {
+                                            widget.myButton.key!.currentState!
+                                                .textSwitch();
                                             widget.formFields.add(widget
                                                 ._confirmPasswordFormField);
                                             widget.formFieldValidateKeys.add(widget
@@ -304,99 +402,12 @@ class _LoginScreenState extends State<LoginScreen>
                           ),
                           Container(
                             width: MediaQuery.of(context).size.width / 3,
-                            child: Center(
-                                child: MyButton(
-                              height: 40,
-                              // width: 180,
-                              roundLoadingShape: true,
-                              onTap: (startLoading, success, fail, btnState) {
-                                FocusScope.of(context).unfocus();
-                                if (widget._formValidateKey.currentState!
-                                    .validate()) {
-                                  if (btnState == ButtonState.Idle) {
-                                    startLoading();
-                                    Future.delayed(Duration(seconds: 1), () {
-                                      //之后通过Future<User>接收根据用户名查询的用户，现假定已查到
-                                      bool user =
-                                          _studentIdController.text == '1' &&
-                                              _nameController.text == 'a1' &&
-                                              _passwordController.text == 'a1';
-                                      //是否为登录状态且用户存在
-                                      if (!(isLogin ^ user)) {
-                                        if (isLogin == false) {
-                                          //之后将用户信息存入数据库
-                                        }
-
-                                        success();
-                                        Future.delayed(
-                                            Duration(milliseconds: 500), () {
-                                          Navigator.of(context).pushReplacement(
-                                            PageRouteBuilder(
-                                              transitionDuration: Duration(
-                                                  seconds: 3), // 动画持续时间
-                                              pageBuilder: (context, animation,
-                                                  secondaryAnimation) {
-                                                return AllWhiteScreen(); // 替换成你要跳转的页面
-                                              },
-                                              transitionsBuilder: (context,
-                                                  animation,
-                                                  secondaryAnimation,
-                                                  child) {
-                                                return FadeTransition(
-                                                  // 使用 FadeTransition 进行淡入淡出动画
-                                                  opacity: animation,
-                                                  child: child,
-                                                );
-                                              },
-                                            ),
-                                          );
-                                          _animationController.reverse();
-                                        });
-                                      } else {
-                                        fail();
-                                        Future.delayed(
-                                            Duration(milliseconds: 500), () {
-                                          ScaffoldMessenger.of(context)
-                                              .showSnackBar(
-                                            SnackBar(
-                                              content: isLogin
-                                                  ? Text(
-                                                      'login fail ! Invalid username or password !!!')
-                                                  : Text(
-                                                      'register fail !user exist!!!'),
-                                              backgroundColor: Colors.red,
-                                              behavior:
-                                                  SnackBarBehavior.floating,
-                                            ), // 设置为floating以从顶部出现
-                                          );
-                                        });
-                                      }
-                                    });
-                                  } else {} //按钮繁忙时按按钮什么也不做，
-                                } else {
-                                  // 表单校验未通过，执行动画突出显示未通过校验的输入框
-                                  _animateInvalidInputFields();
-                                }
-                              },
-                              loader: Container(
-                                padding: EdgeInsets.all(10),
-                                child: const SpinKitHourGlass(
-                                  color: Color.fromARGB(255, 20, 235, 243),
-                                  // size: loaderWidth ,
-                                ),
-                              ),
-                              borderRadius: 5.0,
-                              color: Colors.black,
-                              child: Text(isLogin! ? 'Login' : 'SignUp',
-                                  style: const TextStyle(
-                                      color: Color.fromARGB(255, 7, 250, 238),
-                                      fontSize: 20)),
-                            )),
+                            child: Center(child: widget.myButton),
                           ),
                           const ElTooltip(
                             position: ElTooltipPosition.leftEnd,
                             content: Text(
-                                'authenticated(已认证信息):\nstudentID:1\nname:a1\npassword:a1'),
+                                'authenticated(已认证信息):\nphonenumber:12345678901\nuserName:a1\npassword:a1'),
                             child: Icon(
                               Icons.info_outline,
                               color: Colors.white,

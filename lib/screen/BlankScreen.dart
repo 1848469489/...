@@ -12,7 +12,7 @@ class AllWhiteScreen extends StatefulWidget {
 class _AllWhiteScreenState extends State<AllWhiteScreen> {
   @override
   Widget build(BuildContext context) {
-    Provider.of<MyAppState>(context).updateAuthStatus(true);
+    //Provider.of<MyAppState>(context).updateAuthStatus();
 // 在构建完成后立即跳转到另一个页面
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // 使用 Navigator 进行页面跳转

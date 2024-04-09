@@ -1,3 +1,5 @@
+import 'package:flutter_animate/flutter_animate.dart';
+
 import '../utils/AnimatedCheck.dart';
 import 'package:flutter/material.dart';
 import 'dart:ui' show lerpDouble;
@@ -6,10 +8,9 @@ import 'package:flutter/scheduler.dart';
 
 enum ButtonState { Busy, Idle }
 
-late AnimationController _checkmarkAnimationController;
-late Animation<double> _checkmarkAnimation;
-
 class MyButton extends StatefulWidget {
+  final GlobalKey<MyButtonState>? key;
+  final Widget switchChild;
   final double height;
   final double? width;
   final double minWidth;
@@ -41,8 +42,11 @@ class MyButton extends StatefulWidget {
   final Color? disabledColor;
   final Color? disabledTextColor;
   final Widget? success;
+
   MyButton(
-      {required this.height,
+      {required this.switchChild,
+      required this.height,
+      required this.key,
       this.success,
       this.width,
       this.minWidth = 0,
@@ -80,12 +84,16 @@ class MyButton extends StatefulWidget {
         assert(clipBehavior != null);
 
   @override
-  _MyButtonState createState() => _MyButtonState();
+  MyButtonState createState() => MyButtonState();
 }
 
-class _MyButtonState extends State<MyButton> with TickerProviderStateMixin {
+class MyButtonState extends State<MyButton> with TickerProviderStateMixin {
+  bool isSwitch = false;
+  late AnimationController _checkmarkAnimationController;
+  late Animation<double> _checkmarkAnimation;
   double? loaderWidth;
-
+  late AnimationController textSwitchController;
+  late Animation<double> textSwitchAnimation;
   bool? isSucceed = false;
   late Animation<double> _animation;
   late AnimationController _controller;
@@ -97,6 +105,9 @@ class _MyButtonState extends State<MyButton> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
+
+    textSwitchController = AnimationController(vsync: this);
+
     _checkmarkAnimationController =
         AnimationController(vsync: this, duration: Duration(seconds: 1));
 
@@ -123,6 +134,13 @@ class _MyButtonState extends State<MyButton> with TickerProviderStateMixin {
 
     minWidth = widget.height;
     loaderWidth = widget.height;
+  }
+
+  void textSwitch() {
+    textSwitchController.forward();
+    setState(() {
+      isSwitch = true;
+    });
   }
 
   @override
@@ -218,7 +236,19 @@ class _MyButtonState extends State<MyButton> with TickerProviderStateMixin {
             widget.onTap!(animateForward, success, fail, btn);
           },
           child: isSucceed == false
-              ? (btn == ButtonState.Idle ? widget.child : widget.loader)
+              ? (btn == ButtonState.Idle
+                  ? !isSwitch
+                      ? widget.child
+                          .animate(
+                              autoPlay: false,
+                              controller: textSwitchController,
+                              value: 0)
+                          .fadeOut(duration: 500.ms)
+                      : widget.switchChild
+                          .animate(value: 0)
+                          .fadeIn(duration: 500.ms)
+                          .shake(duration: 1000.ms)
+                  : widget.loader)
               : widget.success ??
                   AnimatedCheck(
                     color: Color.fromARGB(255, 20, 235, 243),
