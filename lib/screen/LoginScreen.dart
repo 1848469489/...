@@ -5,7 +5,9 @@ import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
 import 'package:ultimatedemo/main.dart';
 import 'package:ultimatedemo/modelfrombackend/LoginResult.dart';
+import 'package:ultimatedemo/modelfrombackend/UserNameResult.dart';
 import 'package:ultimatedemo/modeltobackend/LoginJson.dart';
+import 'package:ultimatedemo/modeltobackend/RegisterJson.dart';
 import 'package:ultimatedemo/request.dart';
 
 import 'package:ultimatedemo/screen/HomeRoute.dart';
@@ -96,61 +98,106 @@ class _LoginScreenState extends State<LoginScreen>
           if (btnState == ButtonState.Idle) {
             startLoading();
             Future.delayed(Duration(seconds: 1), () async {
-              LoginJson loginJson = LoginJson(
-                  password: _passwordController.text,
-                  userName: _userNameController.text,
-                  phonenumber: _phonenumberController.text);
-              //之后通过Future<User>接收根据用户名查询的用户，现假定已查到
-              LoginResult? loginResult = await login(loginJson);
-
-              //是否为登录状态且用户存在
-              if (!(isLogin ^ (loginResult!.code == 200))) {
-                if (isLogin == false) {
-                  //将注册用户信息存入数据库
-                } else {
+              if (isLogin) {
+                LoginJson loginJson = LoginJson(
+                    password: _passwordController.text,
+                    userName: _userNameController.text,
+                    phonenumber: _phonenumberController.text);
+                LoginResult? loginResult = await login(loginJson);
+                if (loginResult!.token != '') {
                   MyAppState myAppState =
                       Provider.of<MyAppState>(context, listen: false);
-                  myAppState.token = loginResult?.token;
+                  myAppState.token = loginResult.token;
                   myAppState.userName = _userNameController.text;
-                  
+                  success();
+                  Future.delayed(Duration(milliseconds: 500), () {
+                    Navigator.of(context).pushReplacement(
+                      PageRouteBuilder(
+                        transitionDuration: Duration(seconds: 3), // 动画持续时间
+                        pageBuilder: (context, animation, secondaryAnimation) {
+                          return isLogin
+                              ? AllWhiteScreen()
+                              : LoginScreen(); // 替换成你要跳转的页面
+                        },
+                        transitionsBuilder:
+                            (context, animation, secondaryAnimation, child) {
+                          return FadeTransition(
+                            // 使用 FadeTransition 进行淡入淡出动画
+                            opacity: animation,
+                            child: child,
+                          );
+                        },
+                      ),
+                    );
+                    _animationController.reverse();
+                  });
+                } else {
+                  fail();
+                  Future.delayed(Duration(milliseconds: 500), () {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        duration: Duration(milliseconds: 1500),
+                        content: Text(
+                            'login fail !phonenumber not register or incorrect userName or password !!!'),
+                        backgroundColor: Colors.red,
+                        behavior: SnackBarBehavior.floating,
+                      ), // 设置为floating以从顶部出现
+                    );
+                  });
                 }
-                success();
-                Future.delayed(Duration(milliseconds: 500), () {
-                  Navigator.of(context).pushReplacement(
-                    PageRouteBuilder(
-                      transitionDuration: Duration(seconds: 3), // 动画持续时间
-                      pageBuilder: (context, animation, secondaryAnimation) {
-                        return isLogin
-                            ? AllWhiteScreen()
-                            : LoginScreen(); // 替换成你要跳转的页面
-                      },
-                      transitionsBuilder:
-                          (context, animation, secondaryAnimation, child) {
-                        return FadeTransition(
-                          // 使用 FadeTransition 进行淡入淡出动画
-                          opacity: animation,
-                          child: child,
-                        );
-                      },
-                    ),
-                  );
-                  _animationController.reverse();
-                });
               } else {
-                fail();
-                Future.delayed(Duration(milliseconds: 500), () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      duration: Duration(milliseconds: 1500),
-                      content: isLogin
-                          ? Text(
-                              'login fail ! Invalid userName or password !!!')
-                          : Text('register fail !user exist!!!'),
-                      backgroundColor: Colors.red,
-                      behavior: SnackBarBehavior.floating,
-                    ), // 设置为floating以从顶部出现
-                  );
-                });
+                UserNameResult? phonenumberUsed =
+                    await getUserNameByPhonenumber(_phonenumberController.text);
+                UserNameResult? userNameUsed =
+                    await getUserNameByUserName(_userNameController.text);
+                bool pu = phonenumberUsed!.userName != '';
+                bool uu = userNameUsed!.userName != '';
+                if (pu || uu) {
+                  fail();
+                  Future.delayed(Duration(milliseconds: 500), () {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        duration: Duration(milliseconds: 1500),
+                        content: pu
+                            ? const Text(
+                                'register fail !phonenumber is used !!!')
+                            : const Text('register fail !userName is used !!!'),
+                        backgroundColor: Colors.red,
+                        behavior: SnackBarBehavior.floating,
+                      ), // 设置为floating以从顶部出现
+                    );
+                  });
+                } else {
+                  //将注册用户信息存入数据库
+                  RegisterJson registerJson = RegisterJson(
+                      password: _passwordController.text,
+                      userName: _userNameController.text,
+                      confirmPassword: _confirmPasswordController.text,
+                      phonenumber: _phonenumberController.text);
+                  register(registerJson);
+                  success();
+                  Future.delayed(Duration(milliseconds: 500), () {
+                    Navigator.of(context).pushReplacement(
+                      PageRouteBuilder(
+                        transitionDuration: Duration(seconds: 3), // 动画持续时间
+                        pageBuilder: (context, animation, secondaryAnimation) {
+                          return isLogin
+                              ? AllWhiteScreen()
+                              : LoginScreen(); // 替换成你要跳转的页面
+                        },
+                        transitionsBuilder:
+                            (context, animation, secondaryAnimation, child) {
+                          return FadeTransition(
+                            // 使用 FadeTransition 进行淡入淡出动画
+                            opacity: animation,
+                            child: child,
+                          );
+                        },
+                      ),
+                    );
+                    _animationController.reverse();
+                  });
+                }
               }
             });
           } else {} //按钮繁忙时按按钮什么也不做，
