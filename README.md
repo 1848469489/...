@@ -1,4 +1,4 @@
-# logindemo
+# flutter login and register
 
 A new Flutter project.
 
