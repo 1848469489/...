@@ -103,26 +103,26 @@ class _LoginScreenState extends State<LoginScreen>
               //之后通过Future<User>接收根据用户名查询的用户，现假定已查到
               LoginResult? loginResult = await login(loginJson);
 
-              // bool user = _phonenumberController.text == '12345678901' &&
-              //     _userNameController.text == 'a1' &&
-              //     _passwordController.text == 'a1';
               //是否为登录状态且用户存在
-              if (!(isLogin ^ (loginResult != null))) {
+              if (!(isLogin ^ (loginResult!.code == 200))) {
                 if (isLogin == false) {
                   //将注册用户信息存入数据库
-                }else{
-                  Provider.of<MyAppState>(context).updateAuthStatus(true);
-                  Provider.of<MyAppState>(context).token = loginResult!.token;
-                  Provider.of<MyAppState>(context).userName = loginResult.userName;
+                } else {
+                  MyAppState myAppState =
+                      Provider.of<MyAppState>(context, listen: false);
+                  myAppState.token = loginResult?.token;
+                  myAppState.userName = _userNameController.text;
+                  
                 }
-
                 success();
                 Future.delayed(Duration(milliseconds: 500), () {
                   Navigator.of(context).pushReplacement(
                     PageRouteBuilder(
                       transitionDuration: Duration(seconds: 3), // 动画持续时间
                       pageBuilder: (context, animation, secondaryAnimation) {
-                        return isLogin? AllWhiteScreen():LoginScreen(); // 替换成你要跳转的页面
+                        return isLogin
+                            ? AllWhiteScreen()
+                            : LoginScreen(); // 替换成你要跳转的页面
                       },
                       transitionsBuilder:
                           (context, animation, secondaryAnimation, child) {
@@ -239,7 +239,7 @@ class _LoginScreenState extends State<LoginScreen>
     widget.formFieldValidateKeys.add(widget._userNameFieldValidateKey);
     widget.formFieldValidateKeys.add(widget._passwordFieldValidateKey);
 
-    _startBackgroundImageAnimation();
+    // _startBackgroundImageAnimation();
 
     _animationController = AnimationController(
       vsync: this,

@@ -1,18 +1,20 @@
 class LoginResult {
-  final String userName;
-  final String token;
-
-  const LoginResult({required this.token, required this.userName});
+  final String msg;
+  final String? token;
+  final int code;
+  const LoginResult({this.token, required this.msg,required this.code});
 
   factory LoginResult.fromJson(Map<String, dynamic> json) {
     return switch (json) {
       {
-        'token': String token,
-        'username': String userName,
+        'code':int code,
+        'token': String? token,
+        'msg': String msg,
       } =>
         LoginResult(
           token: token,
-          userName: userName,
+          msg: msg,
+          code: code
         ),
       _ => throw const FormatException('Format.'),
     };
