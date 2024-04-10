@@ -286,7 +286,7 @@ class _LoginScreenState extends State<LoginScreen>
     widget.formFieldValidateKeys.add(widget._userNameFieldValidateKey);
     widget.formFieldValidateKeys.add(widget._passwordFieldValidateKey);
 
-    // _startBackgroundImageAnimation();
+    _startBackgroundImageAnimation();
 
     _animationController = AnimationController(
       vsync: this,

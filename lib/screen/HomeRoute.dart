@@ -6,7 +6,7 @@ import 'package:ultimatedemo/screen/UserInfoScreen.dart';
 
 import '../main.dart';
 import 'Screen1.dart';
-import 'Screen2.dart';
+
 import 'Screen3.dart';
 import 'Screen4.dart';
 
@@ -15,7 +15,7 @@ class HomeRoute extends StatefulWidget {
 
   HomeRoute();
 
-  double? maxIndex = 4.0;
+  double? maxIndex = 3.0;
   //LoginScreen loginScreen = LoginScreen();
   @override
   State<HomeRoute> createState() => _HomeRouteState();
@@ -42,11 +42,7 @@ class _HomeRouteState extends State<HomeRoute>
         title: '',
       ),
     );
-    bottomBarPages.add(
-      const Screen2(
-        title: '',
-      ),
-    );
+
     bottomBarPages.add(
       const Screen3(
         title: '',
@@ -116,17 +112,7 @@ class _HomeRouteState extends State<HomeRoute>
                   ),
                   itemLabel: 'Screen 1',
                 ),
-                BottomBarItem(
-                  inActiveItem: Icon(
-                    Icons.star,
-                    color: Colors.blueGrey,
-                  ),
-                  activeItem: Icon(
-                    Icons.star,
-                    color: Colors.blueAccent,
-                  ),
-                  itemLabel: 'Screen 2',
-                ),
+
                 BottomBarItem(
                   inActiveItem: Icon(
                     Icons.sailing,
