@@ -30,11 +30,14 @@ import 'package:el_tooltip/el_tooltip.dart';
 
 class LoginScreen extends StatefulWidget {
   final _formValidateKey = GlobalKey<FormState>(); // Form key
+
+  //用于formfield,单独获取各个输入框的校验结果
   final _phonenumberFieldValidateKey = GlobalKey<FormFieldState>();
   final _userNameFieldValidateKey = GlobalKey<FormFieldState>();
   final _passwordFieldValidateKey = GlobalKey<FormFieldState>();
   final _confirmPasswordFieldValidateKey = GlobalKey<FormFieldState>();
 
+  //用于自定义输入框组件，用于使用自定义输入框组件的状态变量
   final _phonenumberFieldKey = GlobalKey<MyTextFieldState>();
   final _userNameFieldKey = GlobalKey<MyTextFieldState>();
   final _passwordFieldKey = GlobalKey<MyTextFieldState>();
@@ -51,8 +54,6 @@ class LoginScreen extends StatefulWidget {
   late List<MyTextField> formFields = [];
 
   late Animation<Offset> _userNameOffset;
-  late Animation<Offset> _phonenumberOffset;
-  late Animation<Offset> _passwordOffset;
 
   List _backgroundImages = [
     'assets/images/miku02.jpg',
@@ -94,22 +95,33 @@ class _LoginScreenState extends State<LoginScreen>
       roundLoadingShape: true,
       onTap: (startLoading, success, fail, btnState) {
         FocusScope.of(context).unfocus();
+
+        //校验全部输入框，校验未通过的输入框执行动画
         if (widget._formValidateKey.currentState!.validate()) {
+          //按钮若处于繁忙状态，则再次按下无效
           if (btnState == ButtonState.Idle) {
+            //执行加载动画
             startLoading();
+
             Future.delayed(Duration(seconds: 1), () async {
+              //若此时按钮功能为登录
               if (isLogin) {
                 LoginJson loginJson = LoginJson(
                     password: _passwordController.text,
                     userName: _userNameController.text,
                     phonenumber: _phonenumberController.text);
+                //发送登录请求
                 LoginResult? loginResult = await login(loginJson);
+                //若返回令牌,则表示存在该用户,成功
                 if (loginResult!.token != '') {
+                  //保存令牌等常用信息在widget树根
                   MyAppState myAppState =
                       Provider.of<MyAppState>(context, listen: false);
                   myAppState.token = loginResult.token;
                   myAppState.userName = _userNameController.text;
+                  //按钮成功动画
                   success();
+                  //页面跳转动画
                   Future.delayed(Duration(milliseconds: 500), () {
                     Navigator.of(context).pushReplacement(
                       PageRouteBuilder(
@@ -132,7 +144,9 @@ class _LoginScreenState extends State<LoginScreen>
                     _animationController.reverse();
                   });
                 } else {
+                  //若未返回令牌，则登录失败，按钮的失败动画
                   fail();
+                  //展示提示条告知失败原因
                   Future.delayed(Duration(milliseconds: 500), () {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
@@ -146,13 +160,17 @@ class _LoginScreenState extends State<LoginScreen>
                   });
                 }
               } else {
+                //若按钮功能为注册
                 UserNameResult? phonenumberUsed =
-                    await getUserNameByPhonenumber(_phonenumberController.text);
-                UserNameResult? userNameUsed =
-                    await getUserNameByUserName(_userNameController.text);
+                    await getUserNameByPhonenumber(
+                        _phonenumberController.text); //查询手机号是否被注册
+                UserNameResult? userNameUsed = await getUserNameByUserName(
+                    _userNameController.text); //查询用户名是否被使用
                 bool pu = phonenumberUsed!.userName != '';
                 bool uu = userNameUsed!.userName != '';
+                //若手机号或用户名被使用，则失败，消息条展示原因
                 if (pu || uu) {
+                  //按钮失败动画
                   fail();
                   Future.delayed(Duration(milliseconds: 500), () {
                     ScaffoldMessenger.of(context).showSnackBar(
@@ -168,22 +186,23 @@ class _LoginScreenState extends State<LoginScreen>
                     );
                   });
                 } else {
-                  //将注册用户信息存入数据库
+                  //若信息未使用，则成功
                   RegisterJson registerJson = RegisterJson(
                       password: _passwordController.text,
                       userName: _userNameController.text,
                       confirmPassword: _confirmPasswordController.text,
                       phonenumber: _phonenumberController.text);
+                  //将注册用户信息存入数据库
                   register(registerJson);
+                  //按钮成功动画
                   success();
+                  //执行页面跳转动画，换一个新的登录界面
                   Future.delayed(Duration(milliseconds: 500), () {
                     Navigator.of(context).pushReplacement(
                       PageRouteBuilder(
                         transitionDuration: Duration(seconds: 3), // 动画持续时间
                         pageBuilder: (context, animation, secondaryAnimation) {
-                          return isLogin
-                              ? AllWhiteScreen()
-                              : LoginScreen(); // 替换成你要跳转的页面
+                          return LoginScreen(); // 替换成你要跳转的页面
                         },
                         transitionsBuilder:
                             (context, animation, secondaryAnimation, child) {
@@ -223,6 +242,7 @@ class _LoginScreenState extends State<LoginScreen>
           style: const TextStyle(
               color: Color.fromARGB(255, 7, 250, 238), fontSize: 20)),
     );
+
     widget._phonenumberFormField = MyTextField(
       height: 60,
       keyBoardType: TextInputType.number,
@@ -454,7 +474,7 @@ class _LoginScreenState extends State<LoginScreen>
                           const ElTooltip(
                             position: ElTooltipPosition.leftEnd,
                             content: Text(
-                                'authenticated(已认证信息):\nphonenumber:12345678901\nuserName:a1\npassword:a1'),
+                                'authenticated(已认证信息):\nphonenumber:78978978978\nuserName:qwe\npassword:123q\n不用看了可以注册'),
                             child: Icon(
                               Icons.info_outline,
                               color: Colors.white,
